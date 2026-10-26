@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_game_top" -s "tb_game_top_sim" 

@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_rv32im_test" -s "sim_test_rv32im_all" 

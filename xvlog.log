@@ -1,0 +1,42 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/cpu/pipeline.v" into library work
+INFO: [VRFC 10-311] analyzing module IF_ID
+INFO: [VRFC 10-311] analyzing module id_ex_reg
+INFO: [VRFC 10-311] analyzing module execute
+INFO: [VRFC 10-311] analyzing module ex_mem_wb_reg
+INFO: [VRFC 10-311] analyzing module wb
+INFO: [VRFC 10-311] analyzing module pipe
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/cpu/memory.v" into library work
+INFO: [VRFC 10-311] analyzing module instr_mem
+INFO: [VRFC 10-311] analyzing module data_mem
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/cpu/multiplier_dsp.v" into library work
+INFO: [VRFC 10-311] analyzing module multiplier_dsp
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/cpu/divider_radix2.v" into library work
+INFO: [VRFC 10-311] analyzing module divider_radix2
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/cpu/top_rv32m.v" into library work
+INFO: [VRFC 10-311] analyzing module rv32m_top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/game_engine/collision_engine.v" into library work
+INFO: [VRFC 10-311] analyzing module collision_engine
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/game_engine/cooldown_timers.v" into library work
+INFO: [VRFC 10-311] analyzing module cooldown_timers
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/game_engine/sprite_hud_regfile.v" into library work
+INFO: [VRFC 10-311] analyzing module sprite_hud_regfile
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/game_engine/input_controller.v" into library work
+INFO: [VRFC 10-311] analyzing module input_controller
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/game_engine/maze_tile_ram.v" into library work
+INFO: [VRFC 10-311] analyzing module maze_tile_ram
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/game_engine/mmio_interconnect.v" into library work
+INFO: [VRFC 10-311] analyzing module mmio_interconnect
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/vga/vga_timing_gen.v" into library work
+INFO: [VRFC 10-311] analyzing module vga_timing_gen
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/vga/maze_tile_renderer.v" into library work
+INFO: [VRFC 10-311] analyzing module maze_tile_renderer
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/vga/sprite_engine.v" into library work
+INFO: [VRFC 10-311] analyzing module sprite_engine
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/vga/health_hud.v" into library work
+INFO: [VRFC 10-311] analyzing module health_hud
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/vga/pixel_priority_mixer.v" into library work
+INFO: [VRFC 10-311] analyzing module pixel_priority_mixer
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/top_fpga.v" into library work
+INFO: [VRFC 10-311] analyzing module top_fpga
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/sim/tb_game_top.v" into library work
+INFO: [VRFC 10-311] analyzing module tb_game_top

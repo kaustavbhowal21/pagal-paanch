@@ -1,0 +1,256 @@
+#include "game.h"
+#include "physics.h"
+#include "mmio.h"
+
+Tank g_p1;
+Tank g_p2;
+Bullet g_bullets[MAX_BULLETS];
+
+//=============================================================================
+// Hardware Delay / Frame Pacing
+//=============================================================================
+void game_delay(uint32_t count) {
+    while (count--) {
+        __asm__ volatile ("nop");
+    }
+}
+
+//=============================================================================
+// Initialize Game State
+//=============================================================================
+void game_init(void) {
+    // Player 1: Top-Left (x=48, y=48), facing East (angle=0), 20 hearts
+    g_p1.x_fp  = TO_FP(48);
+    g_p1.y_fp  = TO_FP(48);
+    g_p1.angle = 0;
+    g_p1.hp    = 20;
+    g_p1.score = 0;
+
+    // Player 2: Bottom-Right (x=410, y=410), facing West (angle=8), 20 hearts
+    g_p2.x_fp  = TO_FP(410);
+    g_p2.y_fp  = TO_FP(410);
+    g_p2.angle = 8;
+    g_p2.hp    = 20;
+    g_p2.score = 0;
+
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        g_bullets[i].active  = 0;
+        g_bullets[i].is_big  = 0;
+        g_bullets[i].bounces = 0;
+        g_bullets[i].owner   = 0;
+        g_bullets[i].x_fp    = 0;
+        g_bullets[i].y_fp    = 0;
+        g_bullets[i].vx_fp   = 0;
+        g_bullets[i].vy_fp   = 0;
+    }
+
+    // Set initial HUD health
+    REG_HUD_HEALTH_1 = 20;
+    REG_HUD_HEALTH_2 = 20;
+
+    // Clear any pending hardware collisions
+    clear_collision_wall(0xFF);
+    clear_collision_tank(0xFFFF);
+    clear_collision_bullet(0xFFFFFFFF);
+}
+
+//=============================================================================
+// Update Tank Controls, Rotation, and Movement
+//=============================================================================
+void game_update_tanks(void) {
+    uint32_t p1_keys = get_p1_input();
+    uint32_t p2_keys = get_p2_input();
+
+    // ---------------- Player 1 Controls ----------------
+    if (g_p1.hp > 0) {
+        if (p1_keys & BTN_LEFT)
+            g_p1.angle = (g_p1.angle + 15) & 0xF;
+        if (p1_keys & BTN_RIGHT)
+            g_p1.angle = (g_p1.angle + 1) & 0xF;
+
+        int32_t move_dir1 = 0;
+        if (p1_keys & BTN_FWD) move_dir1 = 1;
+        else if (p1_keys & BTN_BWD) move_dir1 = -1;
+
+        if (move_dir1 != 0) {
+            int32_t dx = (g_cos_fp[g_p1.angle] * move_dir1 * 2) << (FP_SHIFT - 8);
+            int32_t dy = (g_sin_fp[g_p1.angle] * move_dir1 * 2) << (FP_SHIFT - 8);
+
+            int32_t new_x = g_p1.x_fp + dx;
+            int32_t new_y = g_p1.y_fp + dy;
+
+            if (FROM_FP(new_x) >= ARENA_MIN_X && FROM_FP(new_x) <= (ARENA_MAX_X - TANK_SIZE))
+                g_p1.x_fp = new_x;
+            if (FROM_FP(new_y) >= ARENA_MIN_Y && FROM_FP(new_y) <= (ARENA_MAX_Y - TANK_SIZE))
+                g_p1.y_fp = new_y;
+        }
+
+        if ((p1_keys & BTN_SHOOT) && is_p1_shoot_ready()) {
+            physics_spawn_bullet(1, 0);
+            trigger_p1_shoot_cooldown();
+        }
+
+        if ((p1_keys & BTN_SPECIAL) && is_p1_spec_ready()) {
+            physics_spawn_bullet(1, 1);
+            trigger_p1_spec_cooldown();
+        }
+    }
+
+    // ---------------- Player 2 Controls ----------------
+    if (g_p2.hp > 0) {
+        if (p2_keys & BTN_LEFT)
+            g_p2.angle = (g_p2.angle + 15) & 0xF;
+        if (p2_keys & BTN_RIGHT)
+            g_p2.angle = (g_p2.angle + 1) & 0xF;
+
+        int32_t move_dir2 = 0;
+        if (p2_keys & BTN_FWD) move_dir2 = 1;
+        else if (p2_keys & BTN_BWD) move_dir2 = -1;
+
+        if (move_dir2 != 0) {
+            int32_t dx2 = (g_cos_fp[g_p2.angle] * move_dir2 * 2) << (FP_SHIFT - 8);
+            int32_t dy2 = (g_sin_fp[g_p2.angle] * move_dir2 * 2) << (FP_SHIFT - 8);
+
+            int32_t new_x2 = g_p2.x_fp + dx2;
+            int32_t new_y2 = g_p2.y_fp + dy2;
+
+            if (FROM_FP(new_x2) >= ARENA_MIN_X && FROM_FP(new_x2) <= (ARENA_MAX_X - TANK_SIZE))
+                g_p2.x_fp = new_x2;
+            if (FROM_FP(new_y2) >= ARENA_MIN_Y && FROM_FP(new_y2) <= (ARENA_MAX_Y - TANK_SIZE))
+                g_p2.y_fp = new_y2;
+        }
+
+        if ((p2_keys & BTN_SHOOT) && is_p2_shoot_ready()) {
+            physics_spawn_bullet(2, 0);
+            trigger_p2_shoot_cooldown();
+        }
+
+        if ((p2_keys & BTN_SPECIAL) && is_p2_spec_ready()) {
+            physics_spawn_bullet(2, 1);
+            trigger_p2_spec_cooldown();
+        }
+    }
+}
+
+//=============================================================================
+// Update Bullets & Wall Reflection Physics
+//=============================================================================
+void game_update_bullets(void) {
+    uint32_t hw_wall_hits = REG_COLLISION_WALL;
+
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (!g_bullets[i].active)
+            continue;
+
+        int prev_x = FROM_FP(g_bullets[i].x_fp);
+        int prev_y = FROM_FP(g_bullets[i].y_fp);
+
+        int32_t next_x_fp = g_bullets[i].x_fp + g_bullets[i].vx_fp;
+        int32_t next_y_fp = g_bullets[i].y_fp + g_bullets[i].vy_fp;
+
+        int next_x = FROM_FP(next_x_fp);
+        int next_y = FROM_FP(next_y_fp);
+
+        // Check if wall hit or hardware flagged collision
+        int hit_detected = (hw_wall_hits & (1U << i)) || 
+                           physics_check_and_destroy_tile(next_x, next_y, g_bullets[i].is_big);
+
+        if (hit_detected) {
+            physics_reflect_bullet(&g_bullets[i], prev_x, prev_y, next_x, next_y);
+        }
+
+        // Advance position if still active
+        if (g_bullets[i].active) {
+            g_bullets[i].x_fp += g_bullets[i].vx_fp;
+            g_bullets[i].y_fp += g_bullets[i].vy_fp;
+        }
+    }
+
+    if (hw_wall_hits)
+        clear_collision_wall(hw_wall_hits);
+}
+
+//=============================================================================
+// Handle Hardware Collision Engine Results: Tank Damage & Annihilation
+//=============================================================================
+void game_process_collisions(void) {
+    uint32_t tank_hits = REG_COLLISION_TANK;
+    uint32_t p1_hit_mask = tank_hits & 0xFFU;
+    uint32_t p2_hit_mask = (tank_hits >> 8) & 0xFFU;
+
+    // Bullets hitting Player 1
+    if (p1_hit_mask) {
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if (p1_hit_mask & (1U << i)) {
+                if (g_bullets[i].active) {
+                    uint8_t dmg = g_bullets[i].is_big ? 6 : 2;
+                    if (g_p1.hp > dmg) g_p1.hp -= dmg;
+                    else g_p1.hp = 0;
+
+                    g_bullets[i].active = 0;
+                }
+            }
+        }
+    }
+
+    // Bullets hitting Player 2
+    if (p2_hit_mask) {
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if (p2_hit_mask & (1U << i)) {
+                if (g_bullets[i].active) {
+                    uint8_t dmg = g_bullets[i].is_big ? 6 : 2;
+                    if (g_p2.hp > dmg) g_p2.hp -= dmg;
+                    else g_p2.hp = 0;
+
+                    g_bullets[i].active = 0;
+                }
+            }
+        }
+    }
+
+    if (tank_hits)
+        clear_collision_tank(tank_hits);
+
+    // Bullet-Bullet mutual annihilation
+    uint32_t bullet_hits = REG_COLLISION_BULLET;
+    if (bullet_hits) {
+        int cell = 0;
+        for (int i = 0; i < 7; i++) {
+            for (int j = i + 1; j < 8; j++) {
+                if (bullet_hits & (1U << cell)) {
+                    g_bullets[i].active = 0;
+                    g_bullets[j].active = 0;
+                }
+                cell++;
+            }
+        }
+        clear_collision_bullet(bullet_hits);
+    }
+}
+
+//=============================================================================
+// Output Live Game State to Hardware MMIO Display Registers
+//=============================================================================
+void game_sync_display(void) {
+    update_tank_sprite(1, FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp), g_p1.angle);
+    update_tank_sprite(2, FROM_FP(g_p2.x_fp), FROM_FP(g_p2.y_fp), g_p2.angle);
+
+    uint32_t act_mask = 0;
+    uint32_t big_mask = 0;
+
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        REG_SPRITE_BULLET_X(i) = FROM_FP(g_bullets[i].x_fp);
+        REG_SPRITE_BULLET_Y(i) = FROM_FP(g_bullets[i].y_fp);
+
+        if (g_bullets[i].active)
+            act_mask |= (1U << i);
+        if (g_bullets[i].is_big)
+            big_mask |= (1U << i);
+    }
+
+    REG_SPRITE_BULLET_ACT = act_mask;
+    REG_SPRITE_BULLET_BIG = big_mask;
+
+    REG_HUD_HEALTH_1 = g_p1.hp;
+    REG_HUD_HEALTH_2 = g_p2.hp;
+}

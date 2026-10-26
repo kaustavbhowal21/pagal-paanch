@@ -1,0 +1,7 @@
+Running: xsim.dir/sim_test_auipc/xsimk.exe -runall -simmode gui -wdb sim_test_auipc.wdb -simrunnum 0 -socket 54718
+Design successfully loaded
+Design Loading Memory Usage: 10152 KB (Peak: 10152 KB)
+Design Loading CPU Usage: 0 ms
+Simulation completed
+Simulation Memory Usage: 11136 KB (Peak: 11136 KB)
+Simulation CPU Usage: 46 ms

@@ -1,0 +1,61 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Tue Oct 13 16:03:14 2026
+# Process ID         : 7400
+# Current directory  : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/testing/RV32IM
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/sim_test_rv32im_all/xsim_script.tcl}
+# Log file           : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/testing/RV32IM/xsim.log
+# Journal file       : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/testing/RV32IM\xsim.jou
+# Running On         : SCORPIO
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26300
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16857 MB
+# Swap memory        : 10200 MB
+# Total Virtual      : 27058 MB
+# Available Virtual  : 10297 MB
+#-----------------------------------------------------------
+source xsim.dir/sim_test_rv32im_all/xsim_script.tcl
+# xsim {sim_test_rv32im_all} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+= =- M P0x00000177)
+ M P0xFFFFFF9C)
+ M P0x00000060)
+ M P0xFFFFFFFE)
+ M P0x3FFFFFFF)
+ M P0xFFFFFFFF)
+ M P0xFFFFFFFE)
+ M P0xFFFFFFFF)
+
+ D P0x00000014)
+ D P0xFFFFFFEC)
+ D P0xFFFFFFEC)
+ D P0x00000014)
+ D P0xFFFFFFFF)
+ D P0x80000000)
+ D P0x7FFFFFFF)
+ D P0xFFFFFFFF)
+ R P0x00000002)
+ R P0xFFFFFFFE)
+ R P0x0000002A)
+ R P0x00000005)
+ R P0x00000ABC)
+
+ A P0x00000004)
+
+ D P0x00000001)
+
+ C
+1 0
+ =
+[TESTBENCH] Simulation completed with SUCCESS.
+$finish called at time : 229030 ns : File "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/testing/RV32IM/tb_rv32im_test.v" Line 135
+exit
+INFO: [Common 17-206] Exiting xsim at Tue Oct 13 16:03:16 2026...

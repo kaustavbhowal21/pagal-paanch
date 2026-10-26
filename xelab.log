@@ -1,0 +1,36 @@
+Vivado Simulator v2025.2
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: D:/2025.2/Vivado/bin/unwrapped/win64.o/xelab.exe -debug typical -top tb_game_top -s tb_game_top_sim 
+Multi-threading is on. Using 14 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module work.id_ex_reg
+Compiling module work.IF_ID
+Compiling module work.multiplier_dsp
+Compiling module work.divider_radix2
+Compiling module work.rv32m_top
+Compiling module work.ex_mem_wb_reg
+Compiling module work.execute
+Compiling module work.wb
+Compiling module work.pipe
+Compiling module work.instr_mem
+Compiling module work.data_mem
+Compiling module work.mmio_interconnect
+Compiling module work.input_controller(DEBOUNCE_MAX=20...
+Compiling module work.cooldown_timers(CLK_PER_MS=50)
+Compiling module work.sprite_hud_regfile
+Compiling module work.maze_tile_ram
+Compiling module work.collision_engine
+Compiling module work.vga_timing_gen_default
+Compiling module work.maze_tile_renderer
+Compiling module work.sprite_engine
+Compiling module work.health_hud
+Compiling module work.pixel_priority_mixer
+Compiling module work.top_fpga(CLK_PER_MS=50,DEBOUNCE_...
+Compiling module work.tb_game_top
+Built simulation snapshot tb_game_top_sim
