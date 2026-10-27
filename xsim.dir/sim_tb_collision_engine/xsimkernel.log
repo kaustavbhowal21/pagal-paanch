@@ -1,7 +1,7 @@
-Running: xsim.dir/sim_tb_collision_engine/xsimk.exe -runall -simmode gui -wdb sim_tb_collision_engine.wdb -simrunnum 0 -socket 56115
+Running: xsim.dir/sim_tb_collision_engine/xsimk.exe -runall -simmode gui -wdb sim_tb_collision_engine.wdb -simrunnum 0 -socket 59424
 Design successfully loaded
-Design Loading Memory Usage: 10076 KB (Peak: 10076 KB)
-Design Loading CPU Usage: 0 ms
+Design Loading Memory Usage: 11004 KB (Peak: 11004 KB)
+Design Loading CPU Usage: 15 ms
 Simulation completed
-Simulation Memory Usage: 11080 KB (Peak: 11080 KB)
-Simulation CPU Usage: 15 ms
+Simulation Memory Usage: 11980 KB (Peak: 11980 KB)
+Simulation CPU Usage: 46 ms

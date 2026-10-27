@@ -1,7 +1,7 @@
-Running: xsim.dir/sim_tb_mmio_interconnect/xsimk.exe -runall -simmode gui -wdb sim_tb_mmio_interconnect.wdb -simrunnum 0 -socket 56744
+Running: xsim.dir/sim_tb_mmio_interconnect/xsimk.exe -runall -simmode gui -wdb sim_tb_mmio_interconnect.wdb -simrunnum 0 -socket 58588
 Design successfully loaded
-Design Loading Memory Usage: 10036 KB (Peak: 10036 KB)
-Design Loading CPU Usage: 15 ms
+Design Loading Memory Usage: 10956 KB (Peak: 10956 KB)
+Design Loading CPU Usage: 61 ms
 Simulation completed
-Simulation Memory Usage: 11036 KB (Peak: 11036 KB)
-Simulation CPU Usage: 30 ms
+Simulation Memory Usage: 11924 KB (Peak: 11924 KB)
+Simulation CPU Usage: 92 ms

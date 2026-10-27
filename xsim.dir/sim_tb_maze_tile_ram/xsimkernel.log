@@ -1,7 +1,7 @@
-Running: xsim.dir/sim_tb_maze_tile_ram/xsimk.exe -runall -simmode gui -wdb sim_tb_maze_tile_ram.wdb -simrunnum 0 -socket 63284
+Running: xsim.dir/sim_tb_maze_tile_ram/xsimk.exe -runall -simmode gui -wdb sim_tb_maze_tile_ram.wdb -simrunnum 0 -socket 54290
 Design successfully loaded
-Design Loading Memory Usage: 10080 KB (Peak: 10080 KB)
-Design Loading CPU Usage: 0 ms
+Design Loading Memory Usage: 10952 KB (Peak: 10952 KB)
+Design Loading CPU Usage: 30 ms
 Simulation completed
-Simulation Memory Usage: 11088 KB (Peak: 11088 KB)
-Simulation CPU Usage: 15 ms
+Simulation Memory Usage: 11932 KB (Peak: 11932 KB)
+Simulation CPU Usage: 61 ms
