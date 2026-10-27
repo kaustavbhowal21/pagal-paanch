@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_maze_tile_ram" -s "sim_tb_maze_tile_ram" 

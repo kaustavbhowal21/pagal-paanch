@@ -3,10 +3,10 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Tue Oct 13 16:04:03 2026
-# Process ID         : 23584
+# Start of session at: Tue Oct 27 20:43:45 2026
+# Process ID         : 25424
 # Current directory  : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks
-# Command line       : xsim.exe -mode tcl -source {xsim.dir/tb_game_top_sim/xsim_script.tcl}
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/sim_tb_vga_subsystem/xsim_script.tcl}
 # Log file           : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/xsim.log
 # Journal file       : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks\xsim.jou
 # Running On         : SCORPIO
@@ -19,7 +19,7 @@
 # Host memory        : 16857 MB
 # Swap memory        : 10200 MB
 # Total Virtual      : 27058 MB
-# Available Virtual  : 10239 MB
+# Available Virtual  : 10018 MB
 #-----------------------------------------------------------
-source xsim.dir/tb_game_top_sim/xsim_script.tcl
+source xsim.dir/sim_tb_vga_subsystem/xsim_script.tcl
 run -all

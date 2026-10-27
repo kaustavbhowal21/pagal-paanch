@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_vga_subsystem" -s "sim_tb_vga_subsystem" 

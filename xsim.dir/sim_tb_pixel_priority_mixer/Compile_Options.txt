@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_pixel_priority_mixer" -s "sim_tb_pixel_priority_mixer" 

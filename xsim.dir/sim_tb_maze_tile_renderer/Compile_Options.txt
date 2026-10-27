@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_maze_tile_renderer" -s "sim_tb_maze_tile_renderer" 

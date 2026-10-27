@@ -3,10 +3,10 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Tue Oct 13 16:04:03 2026
-# Process ID         : 23584
+# Start of session at: Tue Oct 27 20:43:45 2026
+# Process ID         : 25424
 # Current directory  : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks
-# Command line       : xsim.exe -mode tcl -source {xsim.dir/tb_game_top_sim/xsim_script.tcl}
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/sim_tb_vga_subsystem/xsim_script.tcl}
 # Log file           : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/xsim.log
 # Journal file       : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks\xsim.jou
 # Running On         : SCORPIO
@@ -19,68 +19,13 @@
 # Host memory        : 16857 MB
 # Swap memory        : 10200 MB
 # Total Virtual      : 27058 MB
-# Available Virtual  : 10239 MB
+# Available Virtual  : 10018 MB
 #-----------------------------------------------------------
-source xsim.dir/tb_game_top_sim/xsim_script.tcl
-# xsim {tb_game_top_sim} -autoloadwcfg -runall
+source xsim.dir/sim_tb_vga_subsystem/xsim_script.tcl
+# xsim {sim_tb_vga_subsystem} -autoloadwcfg -runall
 Time resolution is 1 ps
 run -all
 ==========================================================
-  BATTLE TANKS: FULL HARDWARE/SOFTWARE SIMULATION START   
+   TESTBENCH: FULL INTEGRATED VGA SUBSYSTEM PIPELINE      
 ==========================================================
-[TIME 200000] Reset de-asserted. CPU starting at PC=0x00000000...
-[TIME 5200000] Player 1 pressing FORWARD and SHOOT...
-[MMIO WRITE] Addr=0x80000088 Data=0x00000014 at time 7945000
-[MMIO WRITE] Addr=0x8000008c Data=0x00000014 at time 7965000
-[MMIO WRITE] Addr=0x80000020 Data=0x000000ff at time 8025000
-[MMIO WRITE] Addr=0x80000028 Data=0x0000ffff at time 8065000
-[MMIO WRITE] Addr=0x80000024 Data=0xffffffff at time 8105000
-[MMIO WRITE] Addr=0x80000014 Data=0x00000002 at time 11325000
-[MMIO WRITE] Addr=0x80000020 Data=0x00620000 at time 14865000
-[TIME 20200000] Player 2 pressing TURN_LEFT and SPECIAL_ATTACK...
-[MMIO WRITE] Addr=0x80000088 Data=0x00000014 at time 22785000
-[MMIO WRITE] Addr=0x8000008c Data=0x00000014 at time 22805000
-[MMIO WRITE] Addr=0x80000020 Data=0x000000ff at time 22865000
-[MMIO WRITE] Addr=0x80000028 Data=0x0000ffff at time 22905000
-[MMIO WRITE] Addr=0x80000024 Data=0xffffffff at time 22945000
-[MMIO WRITE] Addr=0x80000014 Data=0x00000004 at time 25345000
-[MMIO WRITE] Addr=0x80000020 Data=0x00620000 at time 29345000
-[MMIO WRITE] Addr=0x80000088 Data=0x00000014 at time 37265000
-[MMIO WRITE] Addr=0x8000008c Data=0x00000014 at time 37285000
-[MMIO WRITE] Addr=0x80000020 Data=0x000000ff at time 37345000
-[MMIO WRITE] Addr=0x80000028 Data=0x0000ffff at time 37385000
-[MMIO WRITE] Addr=0x80000024 Data=0xffffffff at time 37425000
-[MMIO WRITE] Addr=0x80000020 Data=0x00620000 at time 41025000
-[MMIO WRITE] Addr=0x80000088 Data=0x00000014 at time 48945000
-[MMIO WRITE] Addr=0x8000008c Data=0x00000014 at time 48965000
-[MMIO WRITE] Addr=0x80000020 Data=0x000000ff at time 49025000
-[MMIO WRITE] Addr=0x80000028 Data=0x0000ffff at time 49065000
-[MMIO WRITE] Addr=0x80000024 Data=0xffffffff at time 49105000
-[MMIO WRITE] Addr=0x80000020 Data=0x00620000 at time 52705000
-[MMIO WRITE] Addr=0x80000088 Data=0x00000014 at time 60625000
-[MMIO WRITE] Addr=0x8000008c Data=0x00000014 at time 60645000
-[MMIO WRITE] Addr=0x80000020 Data=0x000000ff at time 60705000
-[MMIO WRITE] Addr=0x80000028 Data=0x0000ffff at time 60745000
-[MMIO WRITE] Addr=0x80000024 Data=0xffffffff at time 60785000
-[MMIO WRITE] Addr=0x80000020 Data=0x00620000 at time 64385000
-[MMIO WRITE] Addr=0x80000088 Data=0x00000014 at time 72305000
-[MMIO WRITE] Addr=0x8000008c Data=0x00000014 at time 72325000
-[MMIO WRITE] Addr=0x80000020 Data=0x000000ff at time 72385000
-[MMIO WRITE] Addr=0x80000028 Data=0x0000ffff at time 72425000
-[MMIO WRITE] Addr=0x80000024 Data=0xffffffff at time 72465000
-[MMIO WRITE] Addr=0x80000020 Data=0x00620000 at time 76065000
-==========================================================
-  SIMULATION RESULTS & TELEMETRY CHECK
-  Active PC Word: 0x0024
-  Tank 1 (x, y): (50, 100)
-  Tank 2 (x, y): (400, 350)
-  P1 Health: 20 / 20 hearts
-  P2 Health: 20 / 20 hearts
-  Bullet Active Mask: 8'b00000000
-  Exception Flag: 0
-  VGA HSync: 1, VSync: 1
-==========================================================
->> TEST PASSED: CPU executed C game software without exceptions!
-$finish called at time : 80200 ns : File "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/sim/tb_game_top.v" Line 104
-exit
-INFO: [Common 17-206] Exiting xsim at Tue Oct 13 16:04:05 2026...
+  [INFO] Pipeline reset de-asserted. Simulating 1 full active video frame...

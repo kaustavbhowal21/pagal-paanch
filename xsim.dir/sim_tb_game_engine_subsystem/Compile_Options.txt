@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_game_engine_subsystem" -s "sim_tb_game_engine_subsystem" 

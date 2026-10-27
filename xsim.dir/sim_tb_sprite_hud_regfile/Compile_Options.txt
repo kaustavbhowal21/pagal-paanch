@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_sprite_hud_regfile" -s "sim_tb_sprite_hud_regfile" 

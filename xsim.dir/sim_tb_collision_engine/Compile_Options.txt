@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_collision_engine" -s "sim_tb_collision_engine" 

@@ -1,0 +1,47 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Tue Oct 27 20:38:27 2026
+# Process ID         : 23968
+# Current directory  : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/sim_tb_pixel_priority_mixer/xsim_script.tcl}
+# Log file           : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/xsim.log
+# Journal file       : D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks\xsim.jou
+# Running On         : SCORPIO
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26300
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16857 MB
+# Swap memory        : 10200 MB
+# Total Virtual      : 27058 MB
+# Available Virtual  : 10272 MB
+#-----------------------------------------------------------
+source xsim.dir/sim_tb_pixel_priority_mixer/xsim_script.tcl
+# xsim {sim_tb_pixel_priority_mixer} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+==========================================================
+   TESTBENCH: PIXEL PRIORITY MIXER VERIFICATION           
+==========================================================
+  [TEST 1] Testing Strict Layer Priority Ladder...
+  [PASS] Layer 1 (HUD) correctly takes top priority (rgb=0x111).
+  [PASS] Layer 2 (Big Bullet) correctly overrides normal bullet and tanks (rgb=0x222).
+  [PASS] Layer 3 (Normal Bullet) correctly overrides tanks (rgb=0x333).
+  [PASS] Layer 4 (Tank P1) correctly overrides Tank P2 and maze (rgb=0x444).
+  [PASS] Layer 5 (Tank P2) correctly overrides maze (rgb=0x555).
+  [PASS] Layer 6 (Maze Wall) rendered correctly (rgb=0x666).
+  [TEST 2] Testing RGB Blanking When active_in=0...
+  [FAIL] Blanking failed! Non-zero RGB during blanking: rgb=0x111
+  [TEST 3] Testing Sync Signal Propagation Delay Line...
+  [FAIL] HSYNC not propagated after 2 delay stages!
+==========================================================
+>> TEST FAILED with 2 errors!
+==========================================================
+$finish called at time : 790 ns : File "D:/Under Graduate/CSE/Semester 3/HL Project/battle-tanks/modules/sim/tb_pixel_priority_mixer.v" Line 237
+exit
+INFO: [Common 17-206] Exiting xsim at Tue Oct 27 20:38:29 2026...

@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_mmio_interconnect" -s "sim_tb_mmio_interconnect" 

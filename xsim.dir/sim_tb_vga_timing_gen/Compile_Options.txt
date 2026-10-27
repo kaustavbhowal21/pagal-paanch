@@ -1,0 +1,1 @@
+-debug "typical" -top "tb_vga_timing_gen" -s "sim_tb_vga_timing_gen" 
