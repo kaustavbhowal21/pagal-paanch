@@ -44,14 +44,14 @@ void game_init(void) {
         g_bullets[i].vy_fp   = 0;
     }
 
-    // Set initial HUD health
-    REG_HUD_HEALTH_1 = 20;
-    REG_HUD_HEALTH_2 = 20;
+    // Set initial HUD health and turret angles
+    REG_HUD_HEALTH  = HUD_HEALTH_PACK(20, 20);
+    REG_TANK_ANGLES = TANK_ANGLES_PACK(0, 8);
 
     // Clear any pending hardware collisions
     clear_collision_wall(0xFF);
-    clear_collision_tank(0xFFFF);
-    clear_collision_bullet(0xFFFFFFFF);
+    clear_collision_tank(0x3FF);
+    clear_collision_bullet(0xFF);
 }
 
 //=============================================================================
@@ -174,36 +174,30 @@ void game_update_bullets(void) {
 // Handle Hardware Collision Engine Results: Tank Damage & Annihilation
 //=============================================================================
 void game_process_collisions(void) {
+    // HIT_MASK: [7:0] = bullet i overlapped a tank, [8] = P1 tank hit, [9] = P2 tank hit.
+    // A bullet never damages the tank that fired it (its muzzle spawn point can
+    // overlap the shooter's own hit box), so owner 1 bullets can only hurt P2 and
+    // owner 2 bullets can only hurt P1.
     uint32_t tank_hits = REG_COLLISION_TANK;
-    uint32_t p1_hit_mask = tank_hits & 0xFFU;
-    uint32_t p2_hit_mask = (tank_hits >> 8) & 0xFFU;
+    uint32_t bullet_mask = tank_hits & 0xFFU;
+    int p1_was_hit = (tank_hits & COLL_TANK_P1_HIT) != 0;
+    int p2_was_hit = (tank_hits & COLL_TANK_P2_HIT) != 0;
 
-    // Bullets hitting Player 1
-    if (p1_hit_mask) {
+    if (bullet_mask && (p1_was_hit || p2_was_hit)) {
         for (int i = 0; i < MAX_BULLETS; i++) {
-            if (p1_hit_mask & (1U << i)) {
-                if (g_bullets[i].active) {
-                    uint8_t dmg = g_bullets[i].is_big ? 6 : 2;
-                    if (g_p1.hp > dmg) g_p1.hp -= dmg;
-                    else g_p1.hp = 0;
+            if (!(bullet_mask & (1U << i)) || !g_bullets[i].active)
+                continue;
 
-                    g_bullets[i].active = 0;
-                }
-            }
-        }
-    }
+            uint8_t dmg = g_bullets[i].is_big ? 6 : 2;
 
-    // Bullets hitting Player 2
-    if (p2_hit_mask) {
-        for (int i = 0; i < MAX_BULLETS; i++) {
-            if (p2_hit_mask & (1U << i)) {
-                if (g_bullets[i].active) {
-                    uint8_t dmg = g_bullets[i].is_big ? 6 : 2;
-                    if (g_p2.hp > dmg) g_p2.hp -= dmg;
-                    else g_p2.hp = 0;
-
-                    g_bullets[i].active = 0;
-                }
+            if (p1_was_hit && g_bullets[i].owner != 1) {
+                if (g_p1.hp > dmg) g_p1.hp -= dmg;
+                else g_p1.hp = 0;
+                g_bullets[i].active = 0;
+            } else if (p2_was_hit && g_bullets[i].owner != 2) {
+                if (g_p2.hp > dmg) g_p2.hp -= dmg;
+                else g_p2.hp = 0;
+                g_bullets[i].active = 0;
             }
         }
     }
@@ -211,18 +205,14 @@ void game_process_collisions(void) {
     if (tank_hits)
         clear_collision_tank(tank_hits);
 
-    // Bullet-Bullet mutual annihilation
-    uint32_t bullet_hits = REG_COLLISION_BULLET;
+    // Bullet-Bullet mutual annihilation.
+    // Hardware reports one sticky bit per bullet: bit i = bullet i overlapped
+    // another active bullet. Both bullets of an overlapping pair are flagged.
+    uint32_t bullet_hits = REG_COLLISION_BULLET & 0xFFU;
     if (bullet_hits) {
-        int cell = 0;
-        for (int i = 0; i < 7; i++) {
-            for (int j = i + 1; j < 8; j++) {
-                if (bullet_hits & (1U << cell)) {
-                    g_bullets[i].active = 0;
-                    g_bullets[j].active = 0;
-                }
-                cell++;
-            }
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if (bullet_hits & (1U << i))
+                g_bullets[i].active = 0;
         }
         clear_collision_bullet(bullet_hits);
     }
@@ -232,25 +222,16 @@ void game_process_collisions(void) {
 // Output Live Game State to Hardware MMIO Display Registers
 //=============================================================================
 void game_sync_display(void) {
-    update_tank_sprite(1, FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp), g_p1.angle);
-    update_tank_sprite(2, FROM_FP(g_p2.x_fp), FROM_FP(g_p2.y_fp), g_p2.angle);
-
-    uint32_t act_mask = 0;
-    uint32_t big_mask = 0;
+    update_tank_sprite(1, FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp));
+    update_tank_sprite(2, FROM_FP(g_p2.x_fp), FROM_FP(g_p2.y_fp));
+    REG_TANK_ANGLES = TANK_ANGLES_PACK(g_p1.angle, g_p2.angle);
 
     for (int i = 0; i < MAX_BULLETS; i++) {
-        REG_SPRITE_BULLET_X(i) = FROM_FP(g_bullets[i].x_fp);
-        REG_SPRITE_BULLET_Y(i) = FROM_FP(g_bullets[i].y_fp);
-
-        if (g_bullets[i].active)
-            act_mask |= (1U << i);
-        if (g_bullets[i].is_big)
-            big_mask |= (1U << i);
+        REG_SPRITE_BULLET(i) = SPRITE_BULLET_PACK(FROM_FP(g_bullets[i].x_fp),
+                                                  FROM_FP(g_bullets[i].y_fp),
+                                                  g_bullets[i].active,
+                                                  g_bullets[i].is_big);
     }
 
-    REG_SPRITE_BULLET_ACT = act_mask;
-    REG_SPRITE_BULLET_BIG = big_mask;
-
-    REG_HUD_HEALTH_1 = g_p1.hp;
-    REG_HUD_HEALTH_2 = g_p2.hp;
+    REG_HUD_HEALTH = HUD_HEALTH_PACK(g_p1.hp, g_p2.hp);
 }

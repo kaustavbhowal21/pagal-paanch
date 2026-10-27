@@ -73,6 +73,7 @@ module tb_game_engine_subsystem;
         .clk        (clk),
         .reset_n    (reset_n),
         .d_addr     (cpu_addr),
+        .d_raddr    (cpu_addr),
         .d_wdata    (cpu_wdata),
         .d_wstrb    (cpu_wstrb),
         .d_we       (cpu_we),
@@ -141,6 +142,7 @@ module tb_game_engine_subsystem;
         .reset_n       (reset_n),
         .wr_en_maze    (wr_en_maze),
         .d_addr        (cpu_addr),
+        .d_raddr       (cpu_addr),
         .d_wdata       (cpu_wdata),
         .rd_maze       (rd_maze),
         .vga_tile_addr (vga_tile_addr),
@@ -164,6 +166,7 @@ module tb_game_engine_subsystem;
         .maze_c_data (col_tile_data),
         .wr_en_col   (wr_en_col),
         .d_addr      (cpu_addr),
+        .d_raddr     (cpu_addr),
         .d_wdata     (cpu_wdata),
         .rd_col      (rd_col)
     );

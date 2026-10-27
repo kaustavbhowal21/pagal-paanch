@@ -49,6 +49,7 @@ module tb_mmio_interconnect;
         .clk        (clk),
         .reset_n    (reset_n),
         .d_addr     (d_addr),
+        .d_raddr    (d_addr),
         .d_wdata    (d_wdata),
         .d_wstrb    (d_wstrb),
         .d_we       (d_we),

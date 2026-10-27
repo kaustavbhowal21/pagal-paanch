@@ -17,7 +17,7 @@ int main(void) {
         game_sync_display();
 
         // 5. Pace game frame loop (~60 FPS at 50 MHz core clock)
-        game_delay(4000);
+        game_delay(FRAME_DELAY_ITERATIONS);
     }
 
     return 0;
