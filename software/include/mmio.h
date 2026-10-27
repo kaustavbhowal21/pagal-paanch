@@ -9,10 +9,17 @@
 //               addr[31] = 1 -> Hardware MMIO Peripherals
 //=============================================================================
 
+#ifndef HOST_TEST
 #define MMIO_BASE               0x80000000U
-
 // Direct volatile pointer access
 #define MMIO_REG(addr)          (*(volatile uint32_t *)(MMIO_BASE + (addr)))
+#define MAZE_RAM_BASE           (MMIO_BASE + 0x0100U)
+#else
+extern uint32_t g_mock_mmio_space[1024];
+#define MMIO_BASE               ((uintptr_t)g_mock_mmio_space)
+#define MMIO_REG(addr)          (*(volatile uint32_t *)((uintptr_t)g_mock_mmio_space + (addr)))
+#define MAZE_RAM_BASE           ((uintptr_t)g_mock_mmio_space + 0x0100U)
+#endif
 
 // 1. Input Controller (Fig 3)
 // Buttons: [0]=FWD, [1]=BWD, [2]=LEFT, [3]=RIGHT, [4]=SHOOT, [5]=SPECIAL
@@ -58,7 +65,6 @@
 
 // 5. Mirrored Maze Tile RAM (Fig 7)
 // 20x20 tiles = 400 words (0x0100 .. 0x073C, word addressed)
-#define MAZE_RAM_BASE           (MMIO_BASE + 0x0100U)
 #define MAZE_TILE(row, col)     (*(volatile uint32_t *)(MAZE_RAM_BASE + (((row) * 20 + (col)) << 2)))
 
 #define TILE_EMPTY              0x0U
@@ -110,6 +116,7 @@ static inline void trigger_p2_spec_cooldown(void) {
     REG_TIMER_TRIGGER = TMR_P2_SPECIAL;
 }
 
+#ifndef HOST_TEST
 static inline void clear_collision_wall(uint32_t mask) {
     REG_COLLISION_WALL = mask;
 }
@@ -121,6 +128,19 @@ static inline void clear_collision_tank(uint32_t mask) {
 static inline void clear_collision_bullet(uint32_t mask) {
     REG_COLLISION_BULLET = mask;
 }
+#else
+static inline void clear_collision_wall(uint32_t mask) {
+    REG_COLLISION_WALL &= ~mask;
+}
+
+static inline void clear_collision_tank(uint32_t mask) {
+    REG_COLLISION_TANK &= ~mask;
+}
+
+static inline void clear_collision_bullet(uint32_t mask) {
+    REG_COLLISION_BULLET &= ~mask;
+}
+#endif
 
 static inline void update_tank_sprite(int player, uint32_t x, uint32_t y, uint32_t angle) {
     uint32_t val = ((angle & 0xFU) << 16) | ((y & 0xFFU) << 8) | (x & 0xFFU);
