@@ -73,12 +73,12 @@ module tb_maze_tile_ram;
         @(posedge clk); // Synchronous read
         #5;
 
-        if (vga_tile_data !== 2'b01 || col_tile_data !== 2'b01) begin
-            $display("  [FAIL] Perimeter tile mismatch! VGA=2'b%b, Col=2'b%b (expected 2'b01)",
+        if (vga_tile_data !== 2'b10 || col_tile_data !== 2'b10) begin
+            $display("  [FAIL] Perimeter tile mismatch! VGA=2'b%b, Col=2'b%b (expected 2'b10 steel)",
                      vga_tile_data, col_tile_data);
             errors = errors + 1;
         end else begin
-            $display("  [PASS] Both Copy V and Copy C hold initial perimeter wall (2'b01).");
+            $display("  [PASS] Both Copy V and Copy C hold initial perimeter steel wall (2'b10).");
         end
 
         // =====================================================================
@@ -145,7 +145,8 @@ module tb_maze_tile_ram;
         col_tile_addr = 9'd399;
         @(posedge clk);
         #5;
-        if (vga_tile_data !== 2'b01 || col_tile_data !== 2'b01) begin
+        // Both corner tiles are perimeter steel walls (2'b10)
+        if (vga_tile_data !== 2'b10 || col_tile_data !== 2'b10) begin
             $display("  [FAIL] Concurrent dual read failed!");
             errors = errors + 1;
         end else begin

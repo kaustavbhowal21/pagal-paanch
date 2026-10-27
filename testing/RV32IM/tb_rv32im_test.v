@@ -84,7 +84,7 @@ module tb_rv32im_test;
         .HEX_FILE("dmem.hex")
     ) u_dmem (
         .clk   (clk),
-        .re    (dmem_read_ready && cs_dmem),
+        .re    (dmem_read_ready && !dmem_read_address[31]),
         .raddr (dmem_read_address),
         .rdata (rd_dmem),
         .we    (dmem_write_ready && cs_dmem),
@@ -98,6 +98,7 @@ module tb_rv32im_test;
         .clk         (clk),
         .reset_n     (reset_n),
         .d_addr      (mem_bus_addr),
+        .d_raddr     (dmem_read_address),
         .d_wdata     (dmem_write_data),
         .d_wstrb     (dmem_write_byte),
         .d_we        (mem_bus_we),

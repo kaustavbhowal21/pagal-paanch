@@ -234,8 +234,11 @@ D:\2025.2\Vivado\bin\xsim.bat tb_game_top_sim -R
   * `SW5` (`T18`): Primary Fire (0.5s cooldown)
   * `SW6` (`U18`): Special Attack (20s cooldown)
 * **Status LEDs (`LD0..LD15`):**
-  * `LD[0]`: Live Bullet-Wall Collision flag
-  * `LD[1]`: Live Bullet-Bullet Collision flag
-  * `LD[2]`: Live Bullet-Tank Collision flag
-  * `LD[3]`: Illegal Instruction / Exception indicator (off when running cleanly)
-  * `LD[15:4]`: Active CPU Program Counter word telemetry (`PC[13:2]`)
+  * `LD[0]`: Bullet-Wall collision flag
+  * `LD[1]`: Bullet-Bullet collision flag
+  * `LD[2]`: Bullet-Tank collision flag
+  * `LD[3]`: CPU exception, latched until reset (off when running cleanly)
+  * `LD[7:4]`: Player 2 debounced FWD / BWD / LEFT / RIGHT (SW1..SW4)
+  * `LD[13:8]`: Player 1 debounced FWD / BWD / LEFT / RIGHT / SHOOT / SPECIAL
+  * `LD[14]`: Game-loop heartbeat (blinks ~2 Hz while the C game loop runs)
+  * `LD[15]`: Clock heartbeat (blinks ~1.5 Hz whenever the FPGA is configured and out of reset)

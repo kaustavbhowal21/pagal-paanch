@@ -196,6 +196,20 @@ static void test_suite_tank_movement_and_bounds(void) {
         game_update_tanks();
     }
     TEST_ASSERT(FROM_FP(g_p1.x_fp) <= (ARENA_MAX_X - TANK_SIZE), "P1 X clamped at ARENA_MAX_X - TANK_SIZE (436)");
+
+    // Maze walls block tanks: steel pillar at tile (4,4) = pixels 96..119
+    MAZE_TILE(4, 4) = TILE_STEEL_SOLID;
+    g_p1.x_fp = TO_FP(60);
+    g_p1.y_fp = TO_FP(100);
+    g_p1.angle = 0; // East, straight into the pillar
+    REG_P1_KEYS = BTN_FWD;
+    for (int step = 0; step < 40; step++) {
+        game_update_tanks();
+    }
+    TEST_ASSERT(FROM_FP(g_p1.x_fp) + TANK_SIZE <= 96, "P1 stopped by maze wall (no driving through pillars)");
+    TEST_ASSERT(physics_tank_hits_wall(FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp)) == 0, "P1 never ends up overlapping a wall");
+    MAZE_TILE(4, 4) = TILE_EMPTY;
+    REG_P1_KEYS = 0;
 }
 
 //=============================================================================

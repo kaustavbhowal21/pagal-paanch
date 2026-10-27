@@ -79,11 +79,13 @@ module tb_sprite_engine;
     // 25 MHz pix_ce
     initial begin
         pix_ce = 1'b0;
+        // Non-blocking drive: a blocking '=' right after the clock edge races with
+        // the DUT's always @(posedge clk) blocks (DUT may see pix_ce=1 on every edge).
         forever begin
             @(posedge clk);
-            pix_ce = 1'b1;
+            pix_ce <= 1'b1;
             @(posedge clk);
-            pix_ce = 1'b0;
+            pix_ce <= 1'b0;
         end
     end
 

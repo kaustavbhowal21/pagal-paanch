@@ -11,6 +11,9 @@ extern const int16_t g_sin_fp[16];
 // Check maze tile collision and destroy brick if destructible (using RV32M DIV)
 int physics_check_and_destroy_tile(int px, int py, int is_big);
 
+// Tank vs maze: 1 if a tank at top-left (x, y) would overlap a wall tile
+int physics_tank_hits_wall(int x, int y);
+
 // Spawn projectile with angle-derived velocity vector (using RV32M MUL)
 void physics_spawn_bullet(int owner, int is_big);
 

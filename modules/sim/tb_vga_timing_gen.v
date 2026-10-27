@@ -59,11 +59,13 @@ module tb_vga_timing_gen;
     // 25 MHz pix_ce: toggles every 2nd clock cycle
     initial begin
         pix_ce = 1'b0;
+        // Non-blocking drive: a blocking '=' right after the clock edge races with
+        // the DUT's always @(posedge clk) blocks (DUT may see pix_ce=1 on every edge).
         forever begin
             @(posedge clk);
-            pix_ce = 1'b1;
+            pix_ce <= 1'b1;
             @(posedge clk);
-            pix_ce = 1'b0;
+            pix_ce <= 1'b0;
         end
     end
 
@@ -129,8 +131,12 @@ module tb_vga_timing_gen;
                         errors = errors + 1;
                     end
 
-                    // Check active pixel count per visible line
-                    if (vcnt < 480) begin
+                    // Check active pixel count per visible line.
+                    // The first line after reset is partial: pixel (0,0) is spent
+                    // in reset (outputs blanked, active=0), so skip that one line.
+                    if (lines_counted == 0) begin
+                        // partial line after reset release - not checked
+                    end else if (vcnt < 480) begin
                         if (active_pixels_in_line !== 640) begin
                             $display("  [FAIL] Expected 640 active pixels on visible line %0d, got %0d",
                                      vcnt, active_pixels_in_line);
