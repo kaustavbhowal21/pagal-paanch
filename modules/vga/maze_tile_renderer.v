@@ -23,7 +23,7 @@ module maze_tile_renderer (
     input  wire        active,
 
     // Interface to Mirrored Maze RAM Copy V Port B
-    output reg  [8:0]  maze_vga_addr,  // 0..399 tile address
+    output wire [8:0]  maze_vga_addr,  // 0..399 tile address
     input  wire [1:0]  maze_vga_data,  // 2-bit tile type from BRAM
 
     // Pixel outputs to Pixel Priority Mixer (Fig 10)
@@ -32,70 +32,20 @@ module maze_tile_renderer (
 );
 
     // =========================================================================
-    // 1. Tile Coordinate Tracking (Fig 11 Part A: No hardware divider)
+    // 1. Direct Tile Coordinate & Sub-Pixel Derivation (24x24 px tiles)
     // =========================================================================
-    reg [4:0] tile_x;     // 0..19
-    reg [4:0] sub_x;      // 0..23
-    reg [4:0] tile_y;     // 0..19
-    reg [4:0] sub_y;      // 0..23
-
     wire in_maze = (x < 10'd480) && (y < 10'd480) && active;
 
-    // Track horizontal tile and sub-pixel counters
-    always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) begin
-            tile_x <= 5'd0;
-            sub_x  <= 5'd0;
-        end else if (pix_ce) begin
-            if (x == 10'd0) begin
-                tile_x <= 5'd0;
-                sub_x  <= 5'd0;
-            end else if (x < 10'd480) begin
-                if (sub_x == 5'd23) begin
-                    sub_x  <= 5'd0;
-                    tile_x <= tile_x + 5'd1;
-                end else begin
-                    sub_x  <= sub_x + 5'd1;
-                end
-            end else begin
-                tile_x <= 5'd0;
-                sub_x  <= 5'd0;
-            end
-        end
-    end
-
-    // Track vertical tile and sub-pixel counters
-    always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) begin
-            tile_y <= 5'd0;
-            sub_y  <= 5'd0;
-        end else if (pix_ce && (x == 10'd0)) begin
-            if (y == 10'd0) begin
-                tile_y <= 5'd0;
-                sub_y  <= 5'd0;
-            end else if (y < 10'd480) begin
-                if (sub_y == 5'd23) begin
-                    sub_y  <= 5'd0;
-                    tile_y <= tile_y + 5'd1;
-                end else begin
-                    sub_y  <= sub_y + 5'd1;
-                end
-            end else begin
-                tile_y <= 5'd0;
-                sub_y  <= 5'd0;
-            end
-        end
-    end
+    // Direct derivation from beam coordinates (immune to blanking interval jitter)
+    wire [4:0] tile_x = (x < 10'd480) ? (x / 5'd24) : 5'd0;
+    wire [4:0] sub_x  = (x < 10'd480) ? (x % 5'd24) : 5'd0;
+    wire [4:0] tile_y = (y < 10'd480) ? (y / 5'd24) : 5'd0;
+    wire [4:0] sub_y  = (y < 10'd480) ? (y % 5'd24) : 5'd0;
 
     // Tile RAM address: tile_y * 20 + tile_x = (tile_y << 4) + (tile_y << 2) + tile_x
     wire [8:0] next_tile_addr = ({4'd0, tile_y} << 4) + ({4'd0, tile_y} << 2) + {4'd0, tile_x};
 
-    always @(posedge clk or negedge reset_n) begin
-        if (!reset_n)
-            maze_vga_addr <= 9'd0;
-        else
-            maze_vga_addr <= next_tile_addr;
-    end
+    assign maze_vga_addr = next_tile_addr;
 
     // =========================================================================
     // 2. 1-Clock Alignment Pipeline (matching BRAM synchronous read latency)
