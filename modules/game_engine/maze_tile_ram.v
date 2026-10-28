@@ -43,39 +43,16 @@ module maze_tile_ram (
     wire [8:0] cpu_tile_addr = cpu_word_idx - 9'd64;
     wire       we_cpu = wr_en_maze && cpu_in_range;
 
-<<<<<<< HEAD
-    // Pre-initialize perimeter walls, center 2x2 stone block, and 16 symmetric pillars
-=======
     // Separate CPU read index (a load may coincide with a store to another address)
     wire [8:0] cpu_rword_idx  = d_raddr[10:2];
     wire [8:0] cpu_rtile_addr = cpu_rword_idx - 9'd64;
 
     // Pre-initialize perimeter walls for immediate out-of-the-box playability
->>>>>>> 5ae522366f71a1d5920a703c8b2c593b718733f3
     integer r, c, idx;
     initial begin
         for (r = 0; r < 20; r = r + 1) begin
             for (c = 0; c < 20; c = c + 1) begin
                 idx = r * 20 + c;
-<<<<<<< HEAD
-                // Outer perimeter wall (tile code 2'b01)
-                if (r == 0 || r == 19 || c == 0 || c == 19) begin
-                    ram_copy_v[idx] = 2'b01;
-                    ram_copy_c[idx] = 2'b01;
-                end
-                // 2x2 Stone Block in the exact center (rows 9..10, cols 9..10)
-                else if ((r == 9 || r == 10) && (c == 9 || c == 10)) begin
-                    ram_copy_v[idx] = 2'b10; // Indestructible Stone / Steel plate
-                    ram_copy_c[idx] = 2'b10;
-                end
-                // 16 Symmetrically distributed pillars (rows & cols: 3, 6, 13, 16)
-                else if ((r == 3 || r == 6 || r == 13 || r == 16) &&
-                         (c == 3 || c == 6 || c == 13 || c == 16)) begin
-                    ram_copy_v[idx] = 2'b01; // Brick pillars (use 2'b10 if indestructible stone preferred)
-                    ram_copy_c[idx] = 2'b01;
-                end
-                // Open floor (tile code 2'b00)
-=======
                 // Tile encoding (shared with maze_tile_renderer.v and software/mmio.h):
                 //   0 = floor, 1 = destructible brick, 2 = indestructible steel, 3 = solid
                 // Outer perimeter wall: indestructible steel (code 2), so bullets can
@@ -95,7 +72,6 @@ module maze_tile_ram (
                     ram_copy_c[idx] = 2'b01;
                 end
                 // Open floor (tile code 0)
->>>>>>> 0afb17df9abb50b70ee0555422669fe052f65779
                 else begin
                     ram_copy_v[idx] = 2'b00;
                     ram_copy_c[idx] = 2'b00;

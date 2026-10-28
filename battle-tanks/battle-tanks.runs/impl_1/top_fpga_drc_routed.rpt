@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-| Date         : Wed Oct 28 00:01:59 2026
+| Date         : Wed Oct 28 18:44:55 2026
 | Host         : SCORPIO running 64-bit major release  (build 9200)
 | Command      : report_drc -file top_fpga_drc_routed.rpt -pb top_fpga_drc_routed.pb -rpx top_fpga_drc_routed.rpx
 | Design       : top_fpga
@@ -24,14 +24,15 @@ Table of Contents
       Design limits: <entire design considered>
            Ruledeck: default
              Max checks: <unlimited>
-             Checks found: 28
+             Checks found: 35
 +-----------+----------+-----------------------------------------------------+--------+
 | Rule      | Severity | Description                                         | Checks |
 +-----------+----------+-----------------------------------------------------+--------+
 | CFGBVS-1  | Warning  | Missing CFGBVS and CONFIG_VOLTAGE Design Properties | 1      |
-| DPIP-1    | Warning  | Input pipelining                                    | 8      |
-| DPOP-1    | Warning  | PREG Output pipelining                              | 4      |
-| DPOP-2    | Warning  | MREG Output pipelining                              | 4      |
+| DPIP-1    | Warning  | Input pipelining                                    | 10     |
+| DPOP-1    | Warning  | PREG Output pipelining                              | 6      |
+| DPOP-2    | Warning  | MREG Output pipelining                              | 6      |
+| DPOR-1    | Warning  | Asynchronous load check                             | 1      |
 | REQP-1839 | Warning  | RAMB36 async control check                          | 11     |
 +-----------+----------+-----------------------------------------------------+--------+
 
@@ -90,6 +91,16 @@ Input pipelining
 DSP pipe_u/execute/u_rv32m/u_mul/product_full__2 input pipe_u/execute/u_rv32m/u_mul/product_full__2/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
 Related violations: <none>
 
+DPIP-1#9 Warning
+Input pipelining  
+DSP u_collision/cx_mul input u_collision/cx_mul/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#10 Warning
+Input pipelining  
+DSP u_collision/cy_mul input u_collision/cy_mul/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
 DPOP-1#1 Warning
 PREG Output pipelining  
 DSP pipe_u/execute/u_rv32m/u_mul/product_full__0 output pipe_u/execute/u_rv32m/u_mul/product_full__0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
@@ -110,6 +121,16 @@ PREG Output pipelining
 DSP pipe_u/execute/u_rv32m/u_mul/product_full__2 output pipe_u/execute/u_rv32m/u_mul/product_full__2/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
 Related violations: <none>
 
+DPOP-1#5 Warning
+PREG Output pipelining  
+DSP u_collision/cx_mul output u_collision/cx_mul/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#6 Warning
+PREG Output pipelining  
+DSP u_collision/cy_mul output u_collision/cy_mul/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
 DPOP-2#1 Warning
 MREG Output pipelining  
 DSP pipe_u/execute/u_rv32m/u_mul/product_full__0 multiplier stage pipe_u/execute/u_rv32m/u_mul/product_full__0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
@@ -128,6 +149,21 @@ Related violations: <none>
 DPOP-2#4 Warning
 MREG Output pipelining  
 DSP pipe_u/execute/u_rv32m/u_mul/product_full__2 multiplier stage pipe_u/execute/u_rv32m/u_mul/product_full__2/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#5 Warning
+MREG Output pipelining  
+DSP u_collision/cx_mul multiplier stage u_collision/cx_mul/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#6 Warning
+MREG Output pipelining  
+DSP u_collision/cy_mul multiplier stage u_collision/cy_mul/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOR-1#1 Warning
+Asynchronous load check  
+DSP u_collision/cx_mul output is connected to registers with an asynchronous reset (u_collision/maze_c_addr_reg[0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
 Related violations: <none>
 
 REQP-1839#1 Warning
