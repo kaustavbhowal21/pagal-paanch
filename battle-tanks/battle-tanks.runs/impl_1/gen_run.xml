@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="impl_1" LaunchPart="xc7a100tcsg324-1" LaunchTime="1793193023">
+<GenRun Id="impl_1" LaunchPart="xc7a100tcsg324-1" LaunchTime="1793201032">
   <File Type="PA-TCL" Name="top_fpga.tcl"/>
   <File Type="REPORTS-TCL" Name="top_fpga_reports.tcl"/>
   <File Type="INIT-TIMING" Name="top_fpga_timing_summary_init.rpt"/>
@@ -240,6 +240,13 @@
       </FileInfo>
     </File>
     <File Path="$PPRDIR/../modules/vga/pixel_priority_mixer.v">
+      <FileInfo SFType="SVerilog">
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../modules/audio/sound_engine.v">
       <FileInfo SFType="SVerilog">
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>

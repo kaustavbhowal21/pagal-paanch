@@ -92,6 +92,7 @@ read_verilog -library xil_defaultlib -sv {
   {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/cpu/wb.v}
   {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/cpu/pipeline.v}
   {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/vga/pixel_priority_mixer.v}
+  {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/audio/sound_engine.v}
   {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/vga/sprite_engine.v}
   {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/game_engine/sprite_hud_regfile.v}
   {D:/Under Graduate/CSE/Semester 3/HL Project/pagal-paanch/modules/vga/vga_timing_gen.v}

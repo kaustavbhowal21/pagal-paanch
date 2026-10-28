@@ -42,7 +42,11 @@ module top_fpga #(
     output wire [3:0]  vga_g,
     output wire [3:0]  vga_b,
     output wire        vga_hsync,
-    output wire        vga_vsync
+    output wire        vga_vsync,
+
+    // Audio PWM Outputs (Nexys A7 3.5mm Mono Audio Jack J8)
+    output wire        aud_pwm,
+    output wire        aud_sd
 );
 
     // =========================================================================
@@ -500,6 +504,31 @@ module top_fpga #(
         u_collision.bb_any,            // [1] bullet-bullet collision detected
         u_collision.wall_any           // [0] bullet-wall collision detected
     };
+
+
+    // =========================================================================
+    // 12. Hardware Sound Engine (Autonomous Event Sniffer & Audio Synthesizer)
+    // =========================================================================
+    sound_engine #(
+        .CLK_FREQ_HZ (50_000_000),
+        .STARTUP_MS  (20)
+    ) u_sound (
+        .clk          (clk_sys),
+        .reset_n      (rst_n),
+        .bullet_act   (bullet_act),
+        .hp1          (hp1),
+        .hp2          (hp2),
+        .wall_hit_any (u_collision.wall_any),
+        .tank_hit_any (u_collision.tank_hit_any),
+        .trig_fire    (1'b0),
+        .trig_bounce  (1'b0),
+        .trig_hit     (1'b0),
+        .trig_destroy (1'b0),
+        .sfx_active   (),
+        .current_sfx  (),
+        .aud_pwm      (aud_pwm),
+        .aud_sd       (aud_sd)
+    );
 
 endmodule
 
