@@ -51,6 +51,7 @@ module tb_collision_engine;
         .maze_c_data (maze_c_data),
         .wr_en_col   (wr_en_col),
         .d_addr      (d_addr),
+        .d_raddr     (d_addr),
         .d_wdata     (d_wdata),
         .rd_col      (rd_col)
     );
@@ -138,7 +139,7 @@ module tb_collision_engine;
         d_addr = 32'h8000_0028;
         d_wdata = 32'h0000_0003;
         @(posedge clk);
-        wr_en_col = 1'b0;
+        #1 wr_en_col = 1'b0;   // hold past the edge: avoids a TB/DUT scheduling race
         #5;
         if ((rd_col & 8'h03) !== 8'h00) begin
             $display("  [FAIL] Write-1-to-Clear failed! Bits still set: 0x%02h", rd_col[7:0]);
@@ -174,7 +175,7 @@ module tb_collision_engine;
         d_addr = 32'h8000_002C;
         d_wdata = 32'h0000_0101;
         @(posedge clk);
-        wr_en_col = 1'b0;
+        #1 wr_en_col = 1'b0;   // hold past the edge: avoids a TB/DUT scheduling race
         #5;
         if ((rd_col & 32'h0000_0101) !== 32'd0) begin
             $display("  [FAIL] Clear HIT_MASK failed! Got 0x%04h", rd_col[15:0]);
@@ -212,7 +213,7 @@ module tb_collision_engine;
         d_addr = 32'h8000_0024;
         d_wdata = 32'h0000_0008;
         @(posedge clk);
-        wr_en_col = 1'b0;
+        #1 wr_en_col = 1'b0;   // hold past the edge: avoids a TB/DUT scheduling race
         #5;
         if ((rd_col & 8'h08) !== 8'h00) begin
             $display("  [FAIL] WALL_MASK clear failed!");

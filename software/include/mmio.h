@@ -38,30 +38,39 @@ extern uint32_t g_mock_mmio_space[1024];
 #define REG_TIMER_STATUS        MMIO_REG(0x0010)
 #define REG_TIMER_TRIGGER       MMIO_REG(0x0014)
 
+// Bit order matches hardware (cooldown_timers.v): {P2 spec, P2 shoot, P1 spec, P1 shoot}
 #define TMR_P1_SHOOT            (1U << 0) // 0.5s primary fire
-#define TMR_P2_SHOOT            (1U << 1) // 0.5s primary fire
-#define TMR_P1_SPECIAL          (1U << 2) // 20.0s special attack
+#define TMR_P1_SPECIAL          (1U << 1) // 20.0s special attack
+#define TMR_P2_SHOOT            (1U << 2) // 0.5s primary fire
 #define TMR_P2_SPECIAL          (1U << 3) // 20.0s special attack
 
 // 3. Hardware Collision Engine (Write-1-to-Clear sticky registers) (Fig 6a..6d)
-#define REG_COLLISION_WALL      MMIO_REG(0x0020) // [7:0] bullets 0..7 hit wall
-#define REG_COLLISION_BULLET    MMIO_REG(0x0024) // [27:0] bullet-bullet pairs
-#define REG_COLLISION_TANK      MMIO_REG(0x0028) // [7:0]=P1 hit, [15:8]=P2 hit
-#define REG_COLLISION_CLEAR     MMIO_REG(0x002C) // Write 1 to clear sticky hits
+#define REG_COLLISION_FLAG      MMIO_REG(0x0020) // [0] wall, [1] bullet-bullet, [2] tank hit (any)
+#define REG_COLLISION_WALL      MMIO_REG(0x0024) // [7:0] bullet i hit a wall          (W1C)
+#define REG_COLLISION_BULLET    MMIO_REG(0x0028) // [7:0] bullet i hit another bullet  (W1C)
+#define REG_COLLISION_TANK      MMIO_REG(0x002C) // [7:0]=bullet i hit a tank, [8]=P1 tank hit, [9]=P2 tank hit (W1C)
+#define COLL_TANK_P1_HIT        (1U << 8)
+#define COLL_TANK_P2_HIT        (1U << 9)
 
-// 4. Sprite & HUD Register File (Fig 5)
-// Tanks: {12'b0, angle[3:0], y[7:0], x[7:0]}
+// 4. Sprite & HUD Register File (Fig 5) -- matches sprite_hud_regfile.v
+// Tank position: {6'b0, y[9:0], 6'b0, x[9:0]}
 #define REG_SPRITE_P1_TANK      MMIO_REG(0x0040)
 #define REG_SPRITE_P2_TANK      MMIO_REG(0x0044)
 
-// 8 Bullet coordinate registers
-#define REG_SPRITE_BULLET_X(i)  MMIO_REG(0x0048 + ((i) * 8))
-#define REG_SPRITE_BULLET_Y(i)  MMIO_REG(0x004C + ((i) * 8))
+// 8 bullet registers, one word each: {10'b0, big, active, y[9:0], x[9:0]}
+#define REG_SPRITE_BULLET(i)    MMIO_REG(0x0048 + ((i) * 4))
 
-#define REG_SPRITE_BULLET_ACT   MMIO_REG(0x0080) // [7:0] bullet active flags
-#define REG_SPRITE_BULLET_BIG   MMIO_REG(0x0084) // [7:0] big bullet flags
-#define REG_HUD_HEALTH_1        MMIO_REG(0x0088) // P1 health (0..20 hearts)
-#define REG_HUD_HEALTH_2        MMIO_REG(0x008C) // P2 health (0..20 hearts)
+#define REG_HUD_HEALTH          MMIO_REG(0x0080) // {16'b0, hp2[7:0], hp1[7:0]} (0..20 hearts)
+#define REG_TANK_ANGLES         MMIO_REG(0x0084) // {24'b0, ang2[3:0], ang1[3:0]}
+
+#define HUD_HEALTH_PACK(hp1, hp2)   ((((uint32_t)(hp2) & 0xFFU) << 8) | ((uint32_t)(hp1) & 0xFFU))
+#define HUD_HEALTH_P1(reg)          ((reg) & 0xFFU)
+#define HUD_HEALTH_P2(reg)          (((reg) >> 8) & 0xFFU)
+#define TANK_ANGLES_PACK(a1, a2)    ((((uint32_t)(a2) & 0xFU) << 4) | ((uint32_t)(a1) & 0xFU))
+#define SPRITE_POS_PACK(x, y)       ((((uint32_t)(y) & 0x3FFU) << 16) | ((uint32_t)(x) & 0x3FFU))
+#define SPRITE_BULLET_PACK(x, y, act, big) \
+    ((((uint32_t)(big) & 1U) << 21) | (((uint32_t)(act) & 1U) << 20) | \
+     (((uint32_t)(y) & 0x3FFU) << 10) | ((uint32_t)(x) & 0x3FFU))
 
 // 5. Mirrored Maze Tile RAM (Fig 7)
 // 20x20 tiles = 400 words (0x0100 .. 0x073C, word addressed)
@@ -142,8 +151,8 @@ static inline void clear_collision_bullet(uint32_t mask) {
 }
 #endif
 
-static inline void update_tank_sprite(int player, uint32_t x, uint32_t y, uint32_t angle) {
-    uint32_t val = ((angle & 0xFU) << 16) | ((y & 0xFFU) << 8) | (x & 0xFFU);
+static inline void update_tank_sprite(int player, uint32_t x, uint32_t y) {
+    uint32_t val = SPRITE_POS_PACK(x, y);
     if (player == 1)
         REG_SPRITE_P1_TANK = val;
     else

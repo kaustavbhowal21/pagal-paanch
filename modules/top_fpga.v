@@ -95,10 +95,23 @@ module top_fpga #(
     wire [31:0] dmem_cpu_rdata;
 
     // Common memory bus address and strobes
-    // Write cycle uses write_address; read cycle uses read_address
+    // mem_bus_addr is the WRITE-side address (used for every write decode).
+    // Loads (EX stage) and stores (WB stage) can be issued in the same clock, so
+    // reads MUST NOT be steered by the write address: they use their own
+    // dmem_read_address path (mem_rd_addr / mem_rd_addr_q below).
     wire [31:0] mem_bus_addr = dmem_write_ready ? dmem_write_address : dmem_read_address;
     wire        mem_bus_we   = dmem_write_ready;
     wire        mem_bus_re   = dmem_read_ready;
+
+    // Read address, live (for synchronous RAM-style reads) and registered by one
+    // clock (for peripherals whose read data is muxed combinationally in the cycle
+    // AFTER the load, aligned with the interconnect's registered chip-selects).
+    wire [31:0] mem_rd_addr = dmem_read_address;
+    reg  [31:0] mem_rd_addr_q;
+    always @(posedge clk_sys or negedge rst_n) begin
+        if (!rst_n) mem_rd_addr_q <= 32'd0;
+        else        mem_rd_addr_q <= mem_rd_addr;
+    end
 
     // Peripheral read data lines (1-cycle latency)
     wire [31:0] rd_dmem;
@@ -156,7 +169,7 @@ module top_fpga #(
         .HEX_FILE(DMEM_HEX)
     ) DMEM (
         .clk   (clk_sys),
-        .re    (dmem_read_ready && cs_dmem),
+        .re    (dmem_read_ready && !mem_rd_addr[31]),
         .raddr (dmem_read_address),
         .rdata (rd_dmem),
         .we    (dmem_write_ready && cs_dmem),
@@ -172,6 +185,7 @@ module top_fpga #(
         .clk         (clk_sys),
         .reset_n     (rst_n),
         .d_addr      (mem_bus_addr),
+        .d_raddr     (mem_rd_addr),
         .d_wdata     (dmem_write_data),
         .d_wstrb     (dmem_write_byte),
         .d_we        (mem_bus_we),
@@ -210,7 +224,7 @@ module top_fpga #(
         .reset_n       (rst_n),
         .p1_btn_raw    (p1_btn_raw),
         .p2_btn_raw    (p2_btn_raw),
-        .d_addr        (mem_bus_addr),
+        .d_addr        (mem_rd_addr_q),
         .rd_in         (rd_in),
         .p1_btn_stable (p1_btn_debounced),
         .p2_btn_stable (p2_btn_debounced)
@@ -276,6 +290,7 @@ module top_fpga #(
         .reset_n       (rst_n),
         .wr_en_maze    (wr_en_maze),
         .d_addr        (mem_bus_addr),
+        .d_raddr       (mem_rd_addr),
         .d_wdata       (dmem_write_data),
         .rd_maze       (rd_maze),
 
@@ -307,6 +322,7 @@ module top_fpga #(
 
         .wr_en_col   (wr_en_col),
         .d_addr      (mem_bus_addr),
+        .d_raddr     (mem_rd_addr_q),
         .d_wdata     (dmem_write_data),
         .rd_col      (rd_col)
     );

@@ -18,6 +18,13 @@
 #define MAX_BOUNCES         4
 #define MAX_BULLETS         8
 
+// Busy-wait iterations per game frame. Tuned so one full game-loop pass takes
+// ~1/60 s at the 50 MHz system clock (it was 4000, i.e. ~2400 frames/s, which made
+// tanks cross the whole arena in a fraction of a second).
+#ifndef FRAME_DELAY_ITERATIONS
+#define FRAME_DELAY_ITERATIONS  166500
+#endif
+
 #define P1_BULLET_START     0
 #define P1_BULLET_END       3
 #define P2_BULLET_START     4

@@ -14,7 +14,8 @@ module mmio_interconnect (
     input  wire        reset_n,
 
     // CPU Data Memory Bus (EX / WB stage)
-    input  wire [31:0] d_addr,         // full 32-bit byte address
+    input  wire [31:0] d_addr,         // byte address used for WRITE decode (store in WB stage)
+    input  wire [31:0] d_raddr,        // byte address used for READ select (load in EX stage)
     input  wire [31:0] d_wdata,        // store data
     input  wire [3:0]  d_wstrb,        // byte write enables
     input  wire        d_we,           // write enable strobe
@@ -96,6 +97,19 @@ module mmio_interconnect (
     // Synchronous BRAM returns read data 1 clock cycle after the address is
     // presented. The chip-selects are registered by 1 clock cycle to align.
     // =========================================================================
+    // The CPU can issue a load (EX stage) in the very same clock in which an
+    // earlier store is committed (WB stage). Read selects therefore MUST be
+    // decoded from the dedicated read address, never from the write address,
+    // otherwise the load is steered to the wrong peripheral and returns 0/garbage
+    // (which previously corrupted the saved return address and made the CPU
+    // restart from PC=0 every game frame).
+    wire rmmio_sel = d_raddr[31];
+    wire rcs_dmem  = ~rmmio_sel;
+    wire rcs_in    = rmmio_sel && (d_raddr[11:3] == 9'h000);
+    wire rcs_tmr   = rmmio_sel && (d_raddr[11:3] == 9'h002);
+    wire rcs_col   = rmmio_sel && (d_raddr[11:4] == 8'h02);
+    wire rcs_maze  = rmmio_sel && (d_raddr[11:8] >= 4'h1 && d_raddr[11:8] <= 4'h7);
+
     reg cs_dmem_q;
     reg cs_in_q;
     reg cs_tmr_q;
@@ -110,11 +124,11 @@ module mmio_interconnect (
             cs_col_q  <= 1'b0;
             cs_maze_q <= 1'b0;
         end else begin
-            cs_dmem_q <= cs_dmem;
-            cs_in_q   <= cs_in;
-            cs_tmr_q  <= cs_tmr;
-            cs_col_q  <= cs_col;
-            cs_maze_q <= cs_maze;
+            cs_dmem_q <= rcs_dmem;
+            cs_in_q   <= rcs_in;
+            cs_tmr_q  <= rcs_tmr;
+            cs_col_q  <= rcs_col;
+            cs_maze_q <= rcs_maze;
         end
     end
 

@@ -30,7 +30,8 @@ module collision_engine (
 
     // MMIO bus interface
     input  wire        wr_en_col,
-    input  wire [31:0] d_addr,
+    input  wire [31:0] d_addr,         // write address (W1C decode)
+    input  wire [31:0] d_raddr,        // read address (independent of in-flight stores)
     input  wire [31:0] d_wdata,
     output reg  [31:0] rd_col
 );
@@ -81,7 +82,7 @@ module collision_engine (
     assign bb_pair_ovl[7]  = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[2], bullet_y[2], b_size[2], b_size[2], bullet_act[2]);
     assign bb_pair_ovl[8]  = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[3], bullet_y[3], b_size[3], b_size[3], bullet_act[3]);
     assign bb_pair_ovl[9]  = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[4], bullet_y[4], b_size[4], b_size[4], bullet_act[4]);
-    assign bb_pair_ovl[10] = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[5], bullet_y[5], b_size[5], b_size[5], bullet_act[1]);
+    assign bb_pair_ovl[10] = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[5], bullet_y[5], b_size[5], b_size[5], bullet_act[5]);
     assign bb_pair_ovl[11] = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[6], bullet_y[6], b_size[6], b_size[6], bullet_act[6]);
     assign bb_pair_ovl[12] = aabb_overlap(bullet_x[1], bullet_y[1], b_size[1], b_size[1], bullet_act[1], bullet_x[7], bullet_y[7], b_size[7], b_size[7], bullet_act[7]);
 
@@ -159,8 +160,14 @@ module collision_engine (
     wire [9:0] cy = cur_by + cur_half;
 
     // Exact tile index for coordinates < 480: (coord * 683) >> 14 == coord / 24
-    wire [4:0] cur_col = (cx * 10'd683) >> 14;
-    wire [4:0] cur_row = (cy * 10'd683) >> 14;
+    // NOTE: the product needs 19 bits (480*683). It MUST be computed in a wide
+    // intermediate; a direct '(cx * 10'd683) >> 14' into a 5-bit target is evaluated
+    // at 10 bits, truncates the product and always yields tile 0 (a wall), which
+    // flagged EVERY active bullet as hitting a wall.
+    wire [18:0] cx_mul = cx * 19'd683;
+    wire [18:0] cy_mul = cy * 19'd683;
+    wire [4:0] cur_col = cx_mul[18:14];
+    wire [4:0] cur_row = cy_mul[18:14];
     wire [8:0] calc_tile_addr = (cur_row << 4) + (cur_row << 2) + cur_col; // row*20 + col
 
     // Register address to Maze RAM
@@ -201,6 +208,7 @@ module collision_engine (
 
     wire is_col_write = wr_en_col;
     wire [1:0] col_reg_sel = d_addr[3:2];
+    wire [1:0] col_rd_sel  = d_raddr[3:2];
 
     integer k;
     always @(posedge clk or negedge reset_n) begin
@@ -253,7 +261,7 @@ module collision_engine (
 
     // MMIO Read Multiplexer (Fig 6d Part B)
     always @(*) begin
-        case (col_reg_sel)
+        case (col_rd_sel)
             2'b00:   rd_col = {29'd0, tank_hit_any, bb_any, wall_any};                // 0x20: COLLISION_FLAG
             2'b01:   rd_col = {24'd0, sticky_wall_q};                                  // 0x24: WALL_MASK
             2'b10:   rd_col = {24'd0, sticky_bb_q};                                    // 0x28: BB_MASK

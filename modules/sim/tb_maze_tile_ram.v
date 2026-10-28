@@ -31,6 +31,7 @@ module tb_maze_tile_ram;
         .clk           (clk),
         .reset_n       (reset_n),
         .wr_en_maze    (wr_en_maze),
+        .d_raddr       (d_addr),
         .d_addr        (d_addr),
         .d_wdata       (d_wdata),
         .rd_maze       (rd_maze),

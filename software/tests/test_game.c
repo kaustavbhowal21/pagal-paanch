@@ -112,8 +112,8 @@ static void test_suite_game_init(void) {
     }
 
     // Verify MMIO registers
-    TEST_ASSERT(REG_HUD_HEALTH_1 == 20, "HUD Health 1 register initialized to 20");
-    TEST_ASSERT(REG_HUD_HEALTH_2 == 20, "HUD Health 2 register initialized to 20");
+    TEST_ASSERT(HUD_HEALTH_P1(REG_HUD_HEALTH) == 20, "HUD Health 1 field initialized to 20");
+    TEST_ASSERT(HUD_HEALTH_P2(REG_HUD_HEALTH) == 20, "HUD Health 2 field initialized to 20");
 }
 
 //=============================================================================
@@ -316,42 +316,55 @@ static void test_suite_collision_and_damage(void) {
     reset_mock_mmio();
     game_init();
 
-    // Setup active bullets
+    // Setup active bullets (owner 1 = P1 shot, owner 2 = P2 shot)
     g_bullets[0].active = 1;
     g_bullets[0].is_big = 0; // Normal bullet: deals 2 damage
+    g_bullets[0].owner  = 1;
 
     g_bullets[1].active = 1;
     g_bullets[1].is_big = 1; // Big bullet: deals 6 damage
+    g_bullets[1].owner  = 2;
 
-    // 1. Simulate hardware collision reporting: Bullet 0 hit Player 2
-    // REG_COLLISION_TANK bits: [7:0] for P1, [15:8] for P2
-    REG_COLLISION_TANK = (1U << 8); // Bullet 0 hit P2
+    // 1. Hardware reports: bullet 0 overlapped tank 2 -> HIT_MASK = P2 hit | bullet 0
+    REG_COLLISION_TANK = COLL_TANK_P2_HIT | (1U << 0);
 
     game_process_collisions();
 
     TEST_ASSERT(g_p2.hp == 18,    "P2 took 2 damage from normal bullet (20 -> 18)");
+    TEST_ASSERT(g_p1.hp == 20,    "P1 untouched when only P2 was hit");
     TEST_ASSERT(g_bullets[0].active == 0, "Bullet 0 deactivated upon hitting tank");
 
-    // 2. Big bullet hit on Player 1
-    REG_COLLISION_TANK = (1U << 1); // Bullet 1 hit P1
+    // 2. Big bullet (fired by P2) hits Player 1
+    REG_COLLISION_TANK = COLL_TANK_P1_HIT | (1U << 1);
     game_process_collisions();
 
     TEST_ASSERT(g_p1.hp == 14,    "P1 took 6 damage from big special bullet (20 -> 14)");
     TEST_ASSERT(g_bullets[1].active == 0, "Big bullet deactivated upon hitting tank");
 
+    // 2b. Friendly fire: a bullet fired by P1 overlapping P1's own box does nothing
+    g_bullets[3].active = 1;
+    g_bullets[3].is_big = 0;
+    g_bullets[3].owner  = 1;
+    REG_COLLISION_TANK = COLL_TANK_P1_HIT | (1U << 3);
+    game_process_collisions();
+    TEST_ASSERT(g_p1.hp == 14,    "Shooter is not damaged by its own bullet");
+    TEST_ASSERT(g_bullets[3].active == 1, "Own bullet keeps flying through the shooter");
+    g_bullets[3].active = 0;
+
     // 3. Damage saturation at zero
     g_p1.hp = 3;
     g_bullets[2].active = 1;
     g_bullets[2].is_big = 1; // 6 damage on 3 HP
-    REG_COLLISION_TANK = (1U << 2);
+    g_bullets[2].owner  = 2;
+    REG_COLLISION_TANK = COLL_TANK_P1_HIT | (1U << 2);
     game_process_collisions();
     TEST_ASSERT(g_p1.hp == 0, "P1 HP saturated at 0 without underflow");
 
     // 4. Bullet-to-Bullet mutual annihilation
     g_bullets[0].active = 1;
     g_bullets[1].active = 1;
-    // Pair (0, 1) is cell index 0 in REG_COLLISION_BULLET
-    REG_COLLISION_BULLET = (1U << 0);
+    // Hardware flags BOTH bullets of an overlapping pair (one bit per bullet)
+    REG_COLLISION_BULLET = (1U << 0) | (1U << 1);
     game_process_collisions();
     TEST_ASSERT(g_bullets[0].active == 0, "Bullet 0 annihilated in mutual collision");
     TEST_ASSERT(g_bullets[1].active == 0, "Bullet 1 annihilated in mutual collision");
@@ -381,23 +394,25 @@ static void test_suite_display_sync(void) {
 
     game_sync_display();
 
-    // Verify Tank 1 packed sprite register: {angle[3:0], y[7:0], x[7:0]}
-    uint32_t expected_p1_reg = (7U << 16) | (85U << 8) | 120U;
+    // Verify Tank 1 packed sprite register: {y[25:16], x[9:0]} (10-bit coords)
+    uint32_t expected_p1_reg = (85U << 16) | 120U;
     TEST_ASSERT(REG_SPRITE_P1_TANK == expected_p1_reg, "REG_SPRITE_P1_TANK correctly packed");
 
-    // Verify Tank 2 packed sprite register
-    uint32_t expected_p2_reg = (14U << 16) | (250U << 8) | (300U & 0xFFU);
-    TEST_ASSERT(REG_SPRITE_P2_TANK == expected_p2_reg, "REG_SPRITE_P2_TANK correctly packed");
+    // Verify Tank 2 packed sprite register (x=300 needs > 8 bits)
+    uint32_t expected_p2_reg = (250U << 16) | 300U;
+    TEST_ASSERT(REG_SPRITE_P2_TANK == expected_p2_reg, "REG_SPRITE_P2_TANK correctly packed (10-bit x)");
 
-    // Verify Bullet registers
-    TEST_ASSERT(REG_SPRITE_BULLET_X(2) == 200, "Bullet 2 X coordinate written to MMIO");
-    TEST_ASSERT(REG_SPRITE_BULLET_Y(2) == 150, "Bullet 2 Y coordinate written to MMIO");
-    TEST_ASSERT((REG_SPRITE_BULLET_ACT & (1U << 2)) != 0, "Bullet 2 active bit set in mask");
-    TEST_ASSERT((REG_SPRITE_BULLET_BIG & (1U << 2)) != 0, "Bullet 2 big bit set in mask");
+    // Verify turret angles register: {ang2[7:4], ang1[3:0]}
+    TEST_ASSERT(REG_TANK_ANGLES == ((14U << 4) | 7U), "REG_TANK_ANGLES packs both turret angles");
+
+    // Verify Bullet register: {big[21], act[20], y[19:10], x[9:0]}
+    uint32_t expected_b2 = (1U << 21) | (1U << 20) | (150U << 10) | 200U;
+    TEST_ASSERT(REG_SPRITE_BULLET(2) == expected_b2, "Bullet 2 register packs x/y/active/big");
+    TEST_ASSERT((REG_SPRITE_BULLET(0) & (1U << 20)) == 0, "Bullet 0 inactive bit clear");
 
     // Verify HUD Health
-    TEST_ASSERT(REG_HUD_HEALTH_1 == 17, "REG_HUD_HEALTH_1 matches P1 HP");
-    TEST_ASSERT(REG_HUD_HEALTH_2 == 9,  "REG_HUD_HEALTH_2 matches P2 HP");
+    TEST_ASSERT(HUD_HEALTH_P1(REG_HUD_HEALTH) == 17, "HUD health field matches P1 HP");
+    TEST_ASSERT(HUD_HEALTH_P2(REG_HUD_HEALTH) == 9,  "HUD health field matches P2 HP");
 }
 
 //=============================================================================

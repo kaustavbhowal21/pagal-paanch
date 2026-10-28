@@ -17,7 +17,8 @@ module maze_tile_ram (
 
     // CPU Port A (Read / Write)
     input  wire        wr_en_maze,
-    input  wire [31:0] d_addr,         // base 0x8000_0100
+    input  wire [31:0] d_addr,         // write address, base 0x8000_0100
+    input  wire [31:0] d_raddr,        // read address (independent of in-flight stores)
     input  wire [31:0] d_wdata,
     output reg  [31:0] rd_maze,        // CPU read from Copy V
 
@@ -42,7 +43,15 @@ module maze_tile_ram (
     wire [8:0] cpu_tile_addr = cpu_word_idx - 9'd64;
     wire       we_cpu = wr_en_maze && cpu_in_range;
 
+<<<<<<< HEAD
     // Pre-initialize perimeter walls, center 2x2 stone block, and 16 symmetric pillars
+=======
+    // Separate CPU read index (a load may coincide with a store to another address)
+    wire [8:0] cpu_rword_idx  = d_raddr[10:2];
+    wire [8:0] cpu_rtile_addr = cpu_rword_idx - 9'd64;
+
+    // Pre-initialize perimeter walls for immediate out-of-the-box playability
+>>>>>>> 5ae522366f71a1d5920a703c8b2c593b718733f3
     integer r, c, idx;
     initial begin
         for (r = 0; r < 20; r = r + 1) begin
@@ -80,7 +89,7 @@ module maze_tile_ram (
     always @(posedge clk) begin
         if (we_cpu)
             ram_copy_v[cpu_tile_addr] <= d_wdata[1:0];
-        rd_maze <= {30'd0, ram_copy_v[cpu_tile_addr]};
+        rd_maze <= {30'd0, ram_copy_v[cpu_rtile_addr]};
     end
 
     // Port B: VGA Display Read

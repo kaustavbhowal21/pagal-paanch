@@ -102,19 +102,17 @@ battle-tanks/
 | `0x0000_0000 - 0x0000_0FFF` | **Data RAM (DMEM)** | R/W | 4 KB Data Memory (Stack, Globals, Heap) |
 | `0x8000_0000` | `REG_P1_KEYS` | RO | P1 Debounced Buttons: `[0]` FWD, `[1]` BWD, `[2]` L, `[3]` R, `[4]` SHOOT, `[5]` SPEC |
 | `0x8000_0004` | `REG_P2_KEYS` | RO | P2 Debounced Buttons: `[0]` FWD, `[1]` BWD, `[2]` L, `[3]` R, `[4]` SHOOT, `[5]` SPEC |
-| `0x8000_0010` | `REG_TIMER_STATUS` | RO | Cooldown Status: `[0]` P1 Shoot, `[1]` P2 Shoot, `[2]` P1 Spec, `[3]` P2 Spec |
-| `0x8000_0014` | `REG_TIMER_TRIGGER` | WO | Cooldown Trigger: Write `1` to trigger 0.5s primary or 20s special timer |
-| `0x8000_0020` | `REG_COLLISION_WALL` | R/W1C | Sticky Bullet-Wall Hits: bits `[7:0]` for bullets 0..7 |
-| `0x8000_0024` | `REG_COLLISION_BULLET` | R/W1C | Sticky Bullet-Bullet Hits: 28 pair combinations |
-| `0x8000_0028` | `REG_COLLISION_TANK` | R/W1C | Sticky Bullet-Tank Hits: `[7:0]` hits on P1, `[15:8]` hits on P2 |
-| `0x8000_0040` | `REG_SPRITE_P1_TANK` | WO | Tank 1: `{12'd0, angle[3:0], y[7:0], x[7:0]}` |
-| `0x8000_0044` | `REG_SPRITE_P2_TANK` | WO | Tank 2: `{12'd0, angle[3:0], y[7:0], x[7:0]}` |
-| `0x8000_0048 + 8*i` | `REG_SPRITE_BULLET_X(i)` | WO | Bullet `i` X-coordinate (0..7) |
-| `0x8000_004C + 8*i` | `REG_SPRITE_BULLET_Y(i)` | WO | Bullet `i` Y-coordinate (0..7) |
-| `0x8000_0080` | `REG_SPRITE_BULLET_ACT` | WO | Active Bullet Bitmask: bits `[7:0]` |
-| `0x8000_0084` | `REG_SPRITE_BULLET_BIG` | WO | Special Bullet Bitmask: bits `[7:0]` |
-| `0x8000_0088` | `REG_HUD_HEALTH_1` | WO | Player 1 Health (0..20 hearts) |
-| `0x8000_008C` | `REG_HUD_HEALTH_2` | WO | Player 2 Health (0..20 hearts) |
+| `0x8000_0010` | `REG_TIMER_STATUS` | RO | Cooldown Status (1 = ready): `[0]` P1 Shoot, `[1]` P1 Spec, `[2]` P2 Shoot, `[3]` P2 Spec |
+| `0x8000_0014` | `REG_TIMER_TRIGGER` | WO | Cooldown Trigger (same bit order as status): write `1` to start the 0.5 s primary or 20 s special timer |
+| `0x8000_0020` | `REG_COLLISION_FLAG` | RO | Summary: `[0]` wall, `[1]` bullet-bullet, `[2]` tank hit |
+| `0x8000_0024` | `REG_COLLISION_WALL` | R/W1C | Sticky Bullet-Wall Hits: bits `[7:0]` for bullets 0..7 |
+| `0x8000_0028` | `REG_COLLISION_BULLET` | R/W1C | Sticky Bullet-Bullet Hits: bit `i` = bullet `i` overlapped another bullet |
+| `0x8000_002C` | `REG_COLLISION_TANK` | R/W1C | Sticky Bullet-Tank Hits: `[7:0]` bullet `i` overlapped a tank, `[8]` P1 tank hit, `[9]` P2 tank hit |
+| `0x8000_0040` | `REG_SPRITE_P1_TANK` | WO | Tank 1 position: `{6'd0, y[9:0], 6'd0, x[9:0]}` |
+| `0x8000_0044` | `REG_SPRITE_P2_TANK` | WO | Tank 2 position: `{6'd0, y[9:0], 6'd0, x[9:0]}` |
+| `0x8000_0048 + 4*i` | `REG_SPRITE_BULLET(i)` | WO | Bullet `i` (0..7): `{10'd0, big, active, y[9:0], x[9:0]}` |
+| `0x8000_0080` | `REG_HUD_HEALTH` | WO | Health: `{16'd0, hp2[7:0], hp1[7:0]}` (0..20 hearts each) |
+| `0x8000_0084` | `REG_TANK_ANGLES` | WO | Turret angles: `{24'd0, ang2[3:0], ang1[3:0]}` |
 | `0x8000_0100 - 0x8000_073F` | **Maze Tile RAM** | R/W | Mirrored True-Dual-Port RAM (400 words = 20×20 tiles) |
 
 ---
