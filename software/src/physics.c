@@ -45,6 +45,26 @@ int physics_check_and_destroy_tile(int px, int py, int is_big) {
 }
 
 //=============================================================================
+// Tank vs Maze Collision
+// Returns 1 if a TANK_SIZE x TANK_SIZE tank whose top-left corner is (x, y)
+// would overlap any non-floor maze tile. TANK_SIZE (20) < tile size (24), so
+// checking the four corners is sufficient.
+//=============================================================================
+static int tile_is_solid(int px, int py) {
+    if (px < 0 || px >= 480 || py < 0 || py >= 480)
+        return 1;
+    return MAZE_TILE(py / 24, px / 24) != TILE_EMPTY;
+}
+
+int physics_tank_hits_wall(int x, int y) {
+    const int s = TANK_SIZE - 1;
+    return tile_is_solid(x,     y)     ||
+           tile_is_solid(x + s, y)     ||
+           tile_is_solid(x,     y + s) ||
+           tile_is_solid(x + s, y + s);
+}
+
+//=============================================================================
 // Spawn Projectile from Tank Turret Tip
 // Uses RV32M Hardware MUL instructions
 //=============================================================================

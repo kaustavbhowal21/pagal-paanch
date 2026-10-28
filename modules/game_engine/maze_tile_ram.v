@@ -57,6 +57,7 @@ module maze_tile_ram (
         for (r = 0; r < 20; r = r + 1) begin
             for (c = 0; c < 20; c = c + 1) begin
                 idx = r * 20 + c;
+<<<<<<< HEAD
                 // Outer perimeter wall (tile code 2'b01)
                 if (r == 0 || r == 19 || c == 0 || c == 19) begin
                     ram_copy_v[idx] = 2'b01;
@@ -74,6 +75,27 @@ module maze_tile_ram (
                     ram_copy_c[idx] = 2'b01;
                 end
                 // Open floor (tile code 2'b00)
+=======
+                // Tile encoding (shared with maze_tile_renderer.v and software/mmio.h):
+                //   0 = floor, 1 = destructible brick, 2 = indestructible steel, 3 = solid
+                // Outer perimeter wall: indestructible steel (code 2), so bullets can
+                // no longer blow holes in the arena border.
+                if (r == 0 || r == 19 || c == 0 || c == 19) begin
+                    ram_copy_v[idx] = 2'b10;
+                    ram_copy_c[idx] = 2'b10;
+                end
+                // Interior pillar walls: indestructible steel (code 2)
+                else if ((r % 4 == 0) && (c % 4 == 0)) begin
+                    ram_copy_v[idx] = 2'b10;
+                    ram_copy_c[idx] = 2'b10;
+                end
+                // Breakable wall obstacles in the centre: destructible brick (code 1)
+                else if ((r == 10 && (c >= 8 && c <= 11))) begin
+                    ram_copy_v[idx] = 2'b01;
+                    ram_copy_c[idx] = 2'b01;
+                end
+                // Open floor (tile code 0)
+>>>>>>> 0afb17df9abb50b70ee0555422669fe052f65779
                 else begin
                     ram_copy_v[idx] = 2'b00;
                     ram_copy_c[idx] = 2'b00;

@@ -49,6 +49,12 @@ module vga_timing_gen (
     assign v_end = (vcnt == (V_TOTAL - 10'd1)) && h_end;
     assign frame_tick = (vcnt == V_VISIBLE) && h_end;
 
+    // Next-state counters
+    wire        h_wrap   = (hcnt == (H_TOTAL - 10'd1));
+    wire [9:0]  hcnt_nxt = h_wrap ? 10'd0 : (hcnt + 10'd1);
+    wire [9:0]  vcnt_nxt = !h_wrap ? vcnt :
+                           ((vcnt == (V_TOTAL - 10'd1)) ? 10'd0 : (vcnt + 10'd1));
+
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
             hcnt    <= 10'd0;
@@ -59,28 +65,19 @@ module vga_timing_gen (
             vsync_n <= 1'b1;
             active  <= 1'b0;
         end else if (pix_ce) begin
-            // Horizontal counter
-            if (hcnt == (H_TOTAL - 10'd1)) begin
-                hcnt <= 10'd0;
-                // Vertical counter
-                if (vcnt == (V_TOTAL - 10'd1))
-                    vcnt <= 10'd0;
-                else
-                    vcnt <= vcnt + 10'd1;
-            end else begin
-                hcnt <= hcnt + 10'd1;
-            end
+            hcnt <= hcnt_nxt;
+            vcnt <= vcnt_nxt;
 
-            // Coordinate outputs for visible area
-            x <= (hcnt < H_VISIBLE) ? hcnt : 10'd0;
-            y <= (vcnt < V_VISIBLE) ? vcnt : 10'd0;
+            // All registered outputs are computed from the NEXT counter values so
+            // that x/y/active/hsync_n/vsync_n describe the same pixel as hcnt/vcnt
+            // (previously they lagged hcnt/vcnt by one pixel, so x != hcnt).
+            x <= (hcnt_nxt < H_VISIBLE) ? hcnt_nxt : 10'd0;
+            y <= (vcnt_nxt < V_VISIBLE) ? vcnt_nxt : 10'd0;
 
-            // Active display flag
-            active <= (hcnt < H_VISIBLE) && (vcnt < V_VISIBLE);
+            active <= (hcnt_nxt < H_VISIBLE) && (vcnt_nxt < V_VISIBLE);
 
-            // Sync signals (active low)
-            hsync_n <= !((hcnt >= H_SYNC_START) && (hcnt < H_SYNC_END));
-            vsync_n <= !((vcnt >= V_SYNC_START) && (vcnt < V_SYNC_END));
+            hsync_n <= !((hcnt_nxt >= H_SYNC_START) && (hcnt_nxt < H_SYNC_END));
+            vsync_n <= !((vcnt_nxt >= V_SYNC_START) && (vcnt_nxt < V_SYNC_END));
         end
     end
 

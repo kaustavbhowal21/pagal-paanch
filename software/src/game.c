@@ -79,9 +79,13 @@ void game_update_tanks(void) {
             int32_t new_x = g_p1.x_fp + dx;
             int32_t new_y = g_p1.y_fp + dy;
 
-            if (FROM_FP(new_x) >= ARENA_MIN_X && FROM_FP(new_x) <= (ARENA_MAX_X - TANK_SIZE))
+            // Each axis is tested separately so a tank slides along a wall
+            // instead of sticking to it; walls (maze tiles) now block tanks.
+            if (FROM_FP(new_x) >= ARENA_MIN_X && FROM_FP(new_x) <= (ARENA_MAX_X - TANK_SIZE) &&
+                !physics_tank_hits_wall(FROM_FP(new_x), FROM_FP(g_p1.y_fp)))
                 g_p1.x_fp = new_x;
-            if (FROM_FP(new_y) >= ARENA_MIN_Y && FROM_FP(new_y) <= (ARENA_MAX_Y - TANK_SIZE))
+            if (FROM_FP(new_y) >= ARENA_MIN_Y && FROM_FP(new_y) <= (ARENA_MAX_Y - TANK_SIZE) &&
+                !physics_tank_hits_wall(FROM_FP(g_p1.x_fp), FROM_FP(new_y)))
                 g_p1.y_fp = new_y;
         }
 
@@ -114,9 +118,13 @@ void game_update_tanks(void) {
             int32_t new_x2 = g_p2.x_fp + dx2;
             int32_t new_y2 = g_p2.y_fp + dy2;
 
-            if (FROM_FP(new_x2) >= ARENA_MIN_X && FROM_FP(new_x2) <= (ARENA_MAX_X - TANK_SIZE))
+            // Each axis is tested separately so a tank slides along a wall
+            // instead of sticking to it; walls (maze tiles) now block tanks.
+            if (FROM_FP(new_x2) >= ARENA_MIN_X && FROM_FP(new_x2) <= (ARENA_MAX_X - TANK_SIZE) &&
+                !physics_tank_hits_wall(FROM_FP(new_x2), FROM_FP(g_p2.y_fp)))
                 g_p2.x_fp = new_x2;
-            if (FROM_FP(new_y2) >= ARENA_MIN_Y && FROM_FP(new_y2) <= (ARENA_MAX_Y - TANK_SIZE))
+            if (FROM_FP(new_y2) >= ARENA_MIN_Y && FROM_FP(new_y2) <= (ARENA_MAX_Y - TANK_SIZE) &&
+                !physics_tank_hits_wall(FROM_FP(g_p2.x_fp), FROM_FP(new_y2)))
                 g_p2.y_fp = new_y2;
         }
 

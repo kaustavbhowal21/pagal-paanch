@@ -118,10 +118,9 @@ always @(posedge clk) begin
         $display("next_pc = %08h", DUT.inst_fetch_pc);
     end
 
-    // Auto-terminate simulation when 'ret' (0x00008067) is encountered
-    // Note: Replace 'DUT.instruction' with the actual signal name from your pipeline
-    if (DUT.instruction == 32'h00008067) begin
-        $display("All instructions are Fetched");
+    // Fail immediately on an illegal-instruction / misaligned-fetch exception
+    if (reset && exception) begin
+        $display(">> TEST FAILED: CPU exception at PC=0x%08h", pc_out);
         $finish;
     end
 end
@@ -133,9 +132,15 @@ initial begin
     $dumpfile("tb_pipeline.vcd");
     $dumpvars(0, tb_pipeline);
 
-    // Fallback timeout just in case the return instruction is never reached
-    #10000;
-    $display("Simulation timed out.");
+    // The game firmware is an infinite loop (it never executes a final 'ret'),
+    // so instead of waiting for one, run for a fixed window and require the
+    // core to have executed instructions without raising an exception.
+    #20000;
+    if (!exception && pc_out !== 32'h0000_0000 && pc_out !== 32'hxxxx_xxxx) begin
+        $display(">> TEST PASSED: pipeline executed program without exceptions (PC=0x%08h)", pc_out);
+    end else begin
+        $display(">> TEST FAILED: exception=%b PC=0x%08h", exception, pc_out);
+    end
     $finish;
 end
 

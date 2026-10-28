@@ -18,8 +18,10 @@
 `define TOP_FPGA_V
 
 module top_fpga #(
-    parameter IMEM_HEX = "imem.hex",
-    parameter DMEM_HEX = "dmem.hex",
+    // "" = use the firmware image embedded in modules/cpu/firmware_*.vh (default,
+    // robust for Vivado synthesis). Pass a file name to load a .hex instead.
+    parameter IMEM_HEX = "",
+    parameter DMEM_HEX = "",
     parameter IMEMSIZE = 4096,
     parameter DMEMSIZE = 4096,
     parameter CLK_PER_MS = 50_000,
@@ -452,11 +454,48 @@ module top_fpga #(
     );
 
     // =========================================================================
-    // 11. Status LEDs (Live hardware telemetry)
+    // 11. Status LEDs (human-readable hardware telemetry)
+    //
+    // The old mapping drove LD15..LD4 straight from PC[13:2]. The PC changes
+    // at 50 MHz, so those LEDs can never be seen "changing": a healthy game
+    // shows a fixed dim pattern, and a CPU running garbage (e.g. imem.hex not
+    // loaded -> all-zero ROM) toggles every bit and looks like ALL LEDs ON.
+    // The LEDs now show slow, meaningful status instead:
+    //   LD15     : 1.5 Hz heartbeat            (clock + reset OK)
+    //   LD14     : game-loop heartbeat         (toggles every 16 game frames:
+    //              ~2 Hz blink = CPU is running the C game loop)
+    //   LD13..8  : P1 debounced buttons        [FWD,BWD,L,R,SHOOT,SPEC] = [8..13]
+    //   LD7..4   : P2 debounced FWD,BWD,L,R    = [4..7]
+    //   LD3      : CPU exception, LATCHED until reset (illegal instr/misaligned)
+    //   LD2..0   : tank / bullet-bullet / wall collision flags
     // =========================================================================
+    reg [24:0] hb_cnt;
+    always @(posedge clk_sys or negedge rst_n) begin
+        if (!rst_n) hb_cnt <= 25'd0;
+        else        hb_cnt <= hb_cnt + 25'd1;
+    end
+
+    // One write to REG_SPRITE_P1_TANK (0x8000_0040) happens per game frame
+    reg [4:0] frame_cnt;
+    always @(posedge clk_sys or negedge rst_n) begin
+        if (!rst_n)
+            frame_cnt <= 5'd0;
+        else if (wr_en_spr && (mem_bus_addr[7:2] == 6'd16))
+            frame_cnt <= frame_cnt + 5'd1;
+    end
+
+    reg exception_latched;
+    always @(posedge clk_sys or negedge rst_n) begin
+        if (!rst_n)         exception_latched <= 1'b0;
+        else if (exception) exception_latched <= 1'b1;
+    end
+
     assign led = {
-        pc_out[13:2],                  // [15:4] active instruction PC word
-        exception,                     // [3] illegal instruction / alignment exception
+        hb_cnt[24],                    // [15] heartbeat
+        frame_cnt[4],                  // [14] game loop alive
+        p1_btn_debounced[5:0],         // [13:8] P1 buttons
+        p2_btn_debounced[3:0],         // [7:4]  P2 move/turn switches
+        exception_latched,             // [3] latched CPU exception
         u_collision.tank_hit_any,      // [2] bullet-tank collision detected
         u_collision.bb_any,            // [1] bullet-bullet collision detected
         u_collision.wall_any           // [0] bullet-wall collision detected
