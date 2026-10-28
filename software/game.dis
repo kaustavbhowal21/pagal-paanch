@@ -26,653 +26,828 @@ Disassembly of section .text:
 
 00000030 <main>:
   30:	ff010113          	addi	x2,x2,-16
-  34:	00812423          	sw	x8,8(x2)
-  38:	00029437          	lui	x8,0x29
-  3c:	00112623          	sw	x1,12(x2)
-  40:	a6440413          	addi	x8,x8,-1436 # 28a64 <_stack_top+0x27a84>
-  44:	03c000ef          	jal	80 <game_init>
-  48:	0d4000ef          	jal	11c <game_update_tanks>
-  4c:	3d0000ef          	jal	41c <game_update_bullets>
-  50:	4e0000ef          	jal	530 <game_process_collisions>
-  54:	61c000ef          	jal	670 <game_sync_display>
-  58:	00040513          	mv	x10,x8
-  5c:	008000ef          	jal	64 <game_delay>
-  60:	fe9ff06f          	j	48 <g_p1+0x8>
+  34:	00112623          	sw	x1,12(x2)
+  38:	040000ef          	jal	78 <game_init>
+  3c:	0d4000ef          	jal	110 <game_update_tanks>
+  40:	434000ef          	jal	474 <game_update_bullets>
+  44:	544000ef          	jal	588 <game_process_collisions>
+  48:	051000ef          	jal	898 <game_sync_display>
+  4c:	00029537          	lui	x10,0x29
+  50:	a6450513          	addi	x10,x10,-1436 # 28a64 <_stack_top+0x27a84>
+  54:	008000ef          	jal	5c <game_delay>
+  58:	fe5ff06f          	j	3c <main+0xc>
 
-00000064 <game_delay>:
-  64:	fff50793          	addi	x15,x10,-1
-  68:	00050a63          	beqz	x10,7c <game_delay+0x18>
-  6c:	fff00713          	li	x14,-1
-  70:	00000013          	nop
-  74:	fff78793          	addi	x15,x15,-1
-  78:	fee79ce3          	bne	x15,x14,70 <game_delay+0xc>
-  7c:	00008067          	ret
+0000005c <game_delay>:
+  5c:	00050c63          	beqz	x10,74 <game_delay+0x18>
+  60:	fff50513          	addi	x10,x10,-1
+  64:	fff00793          	li	x15,-1
+  68:	00000013          	nop
+  6c:	fff50513          	addi	x10,x10,-1
+  70:	fef51ce3          	bne	x10,x15,68 <game_delay+0xc>
+  74:	00008067          	ret
 
-00000080 <game_init>:
-  80:	00001637          	lui	x12,0x1
-  84:	0001a7b7          	lui	x15,0x1a
-  88:	000016b7          	lui	x13,0x1
-  8c:	04000713          	li	x14,64
-  90:	a0078793          	addi	x15,x15,-1536 # 19a00 <_stack_top+0x18a20>
-  94:	000035b7          	lui	x11,0x3
-  98:	40060613          	addi	x12,x12,1024 # 1400 <_stack_top+0x420>
-  9c:	40868693          	addi	x13,x13,1032 # 1408 <_stack_top+0x428>
-  a0:	00f72623          	sw	x15,12(x14)
-  a4:	00f72823          	sw	x15,16(x14)
+00000078 <game_init>:
+  78:	00001637          	lui	x12,0x1
+  7c:	000016b7          	lui	x13,0x1
+  80:	0001a7b7          	lui	x15,0x1a
+  84:	04000713          	li	x14,64
+  88:	a0078793          	addi	x15,x15,-1536 # 19a00 <_stack_top+0x18a20>
+  8c:	000035b7          	lui	x11,0x3
+  90:	40060613          	addi	x12,x12,1024 # 1400 <_stack_top+0x420>
+  94:	40868693          	addi	x13,x13,1032 # 1408 <_stack_top+0x428>
+  98:	00f72623          	sw	x15,12(x14)
+  9c:	00f72823          	sw	x15,16(x14)
+  a0:	00c72423          	sw	x12,8(x14)
+  a4:	00d72a23          	sw	x13,20(x14)
   a8:	00b72023          	sw	x11,0(x14)
   ac:	00b72223          	sw	x11,4(x14)
-  b0:	00c72423          	sw	x12,8(x14)
-  b4:	00d72a23          	sw	x13,20(x14)
-  b8:	01870793          	addi	x15,x14,24
-  bc:	0b870713          	addi	x14,x14,184
-  c0:	0007a823          	sw	x0,16(x15)
-  c4:	0007a023          	sw	x0,0(x15)
-  c8:	0007a223          	sw	x0,4(x15)
-  cc:	0007a423          	sw	x0,8(x15)
-  d0:	0007a623          	sw	x0,12(x15)
-  d4:	01478793          	addi	x15,x15,20
-  d8:	fee794e3          	bne	x15,x14,c0 <game_init+0x40>
-  dc:	000016b7          	lui	x13,0x1
-  e0:	80000737          	lui	x14,0x80000
-  e4:	41468693          	addi	x13,x13,1044 # 1414 <_stack_top+0x434>
-  e8:	08d72023          	sw	x13,128(x14) # 80000080 <_stack_top+0x7ffff0a0>
-  ec:	800007b7          	lui	x15,0x80000
-  f0:	08000693          	li	x13,128
-  f4:	08d7a223          	sw	x13,132(x15) # 80000084 <_stack_top+0x7ffff0a4>
-  f8:	0ff00613          	li	x12,255
+  b0:	01870793          	addi	x15,x14,24
+  b4:	0b870713          	addi	x14,x14,184
+  b8:	0007a823          	sw	x0,16(x15)
+  bc:	0007a023          	sw	x0,0(x15)
+  c0:	0007a223          	sw	x0,4(x15)
+  c4:	0007a423          	sw	x0,8(x15)
+  c8:	0007a623          	sw	x0,12(x15)
+  cc:	01478793          	addi	x15,x15,20
+  d0:	fee794e3          	bne	x15,x14,b8 <game_init+0x40>
+  d4:	00001737          	lui	x14,0x1
+  d8:	800007b7          	lui	x15,0x80000
+  dc:	41470713          	addi	x14,x14,1044 # 1414 <_stack_top+0x434>
+  e0:	08e7a023          	sw	x14,128(x15) # 80000080 <_stack_top+0x7ffff0a0>
+  e4:	800007b7          	lui	x15,0x80000
+  e8:	08000713          	li	x14,128
+  ec:	08e7a223          	sw	x14,132(x15) # 80000084 <_stack_top+0x7ffff0a4>
+  f0:	0ff00693          	li	x13,255
+  f4:	800007b7          	lui	x15,0x80000
+  f8:	02d7a223          	sw	x13,36(x15) # 80000024 <_stack_top+0x7ffff044>
   fc:	80000737          	lui	x14,0x80000
- 100:	02c72223          	sw	x12,36(x14) # 80000024 <_stack_top+0x7ffff044>
- 104:	800006b7          	lui	x13,0x80000
- 108:	3ff00593          	li	x11,1023
- 10c:	800007b7          	lui	x15,0x80000
- 110:	02b6a623          	sw	x11,44(x13) # 8000002c <_stack_top+0x7ffff04c>
- 114:	02c7a423          	sw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
- 118:	00008067          	ret
+ 100:	3ff00613          	li	x12,1023
+ 104:	02c72623          	sw	x12,44(x14) # 8000002c <_stack_top+0x7ffff04c>
+ 108:	02d72423          	sw	x13,40(x14)
+ 10c:	00008067          	ret
 
-0000011c <game_update_tanks>:
- 11c:	fe010113          	addi	x2,x2,-32
- 120:	00812c23          	sw	x8,24(x2)
- 124:	00912a23          	sw	x9,20(x2)
- 128:	01212823          	sw	x18,16(x2)
- 12c:	00112e23          	sw	x1,28(x2)
- 130:	04000413          	li	x8,64
- 134:	800007b7          	lui	x15,0x80000
- 138:	800006b7          	lui	x13,0x80000
- 13c:	00944703          	lbu	x14,9(x8)
- 140:	0006a903          	lw	x18,0(x13) # 80000000 <_stack_top+0x7ffff020>
- 144:	0047a483          	lw	x9,4(x15) # 80000004 <_stack_top+0x7ffff024>
- 148:	0e070063          	beqz	x14,228 <game_update_tanks+0x10c>
- 14c:	00497793          	andi	x15,x18,4
- 150:	00078a63          	beqz	x15,164 <game_update_tanks+0x48>
- 154:	00844783          	lbu	x15,8(x8)
- 158:	00f78793          	addi	x15,x15,15
- 15c:	00f7f793          	andi	x15,x15,15
- 160:	00f40423          	sb	x15,8(x8)
- 164:	00897793          	andi	x15,x18,8
- 168:	00078a63          	beqz	x15,17c <game_update_tanks+0x60>
- 16c:	00844783          	lbu	x15,8(x8)
- 170:	00178793          	addi	x15,x15,1
- 174:	00f7f793          	andi	x15,x15,15
- 178:	00f40423          	sb	x15,8(x8)
- 17c:	00197793          	andi	x15,x18,1
- 180:	1a078863          	beqz	x15,330 <game_update_tanks+0x214>
- 184:	01312623          	sw	x19,12(x2)
- 188:	01412423          	sw	x20,8(x2)
- 18c:	00100693          	li	x13,1
- 190:	00844703          	lbu	x14,8(x8)
- 194:	00000793          	li	x15,0
- 198:	00171713          	slli	x14,x14,0x1
- 19c:	00e787b3          	add	x15,x15,x14
- 1a0:	00079a03          	lh	x20,0(x15)
- 1a4:	02000793          	li	x15,32
- 1a8:	00e787b3          	add	x15,x15,x14
- 1ac:	00079983          	lh	x19,0(x15)
- 1b0:	02da0a33          	mul	x20,x20,x13
- 1b4:	00042703          	lw	x14,0(x8)
- 1b8:	00442583          	lw	x11,4(x8)
- 1bc:	19c00793          	li	x15,412
- 1c0:	02d989b3          	mul	x19,x19,x13
- 1c4:	001a1a13          	slli	x20,x20,0x1
- 1c8:	00ea0a33          	add	x20,x20,x14
- 1cc:	408a5513          	srai	x10,x20,0x8
- 1d0:	fe850713          	addi	x14,x10,-24
- 1d4:	00199993          	slli	x19,x19,0x1
- 1d8:	00b989b3          	add	x19,x19,x11
- 1dc:	22e7f663          	bgeu	x15,x14,408 <game_update_tanks+0x2ec>
- 1e0:	4089d593          	srai	x11,x19,0x8
- 1e4:	fe858713          	addi	x14,x11,-24 # 2fe8 <_stack_top+0x2008>
- 1e8:	19c00793          	li	x15,412
- 1ec:	1ee7fe63          	bgeu	x15,x14,3e8 <game_update_tanks+0x2cc>
- 1f0:	00c12983          	lw	x19,12(x2)
- 1f4:	00812a03          	lw	x20,8(x2)
- 1f8:	01097793          	andi	x15,x18,16
- 1fc:	00078a63          	beqz	x15,210 <game_update_tanks+0xf4>
- 200:	80000737          	lui	x14,0x80000
- 204:	01072783          	lw	x15,16(x14) # 80000010 <_stack_top+0x7ffff030>
- 208:	0017f793          	andi	x15,x15,1
- 20c:	1a079663          	bnez	x15,3b8 <game_update_tanks+0x29c>
- 210:	02097913          	andi	x18,x18,32
- 214:	00090a63          	beqz	x18,228 <game_update_tanks+0x10c>
- 218:	80000737          	lui	x14,0x80000
- 21c:	01072783          	lw	x15,16(x14) # 80000010 <_stack_top+0x7ffff030>
- 220:	0027f793          	andi	x15,x15,2
- 224:	14079e63          	bnez	x15,380 <game_update_tanks+0x264>
- 228:	01544783          	lbu	x15,21(x8)
- 22c:	0c078c63          	beqz	x15,304 <game_update_tanks+0x1e8>
- 230:	0044f793          	andi	x15,x9,4
- 234:	00078a63          	beqz	x15,248 <game_update_tanks+0x12c>
- 238:	01444783          	lbu	x15,20(x8)
- 23c:	00f78793          	addi	x15,x15,15
- 240:	00f7f793          	andi	x15,x15,15
- 244:	00f40a23          	sb	x15,20(x8)
- 248:	0084f793          	andi	x15,x9,8
- 24c:	00078a63          	beqz	x15,260 <game_update_tanks+0x144>
- 250:	01444783          	lbu	x15,20(x8)
- 254:	00178793          	addi	x15,x15,1
- 258:	00f7f793          	andi	x15,x15,15
- 25c:	00f40a23          	sb	x15,20(x8)
- 260:	0014f793          	andi	x15,x9,1
- 264:	0a078c63          	beqz	x15,31c <game_update_tanks+0x200>
- 268:	01312623          	sw	x19,12(x2)
- 26c:	00100693          	li	x13,1
- 270:	01444703          	lbu	x14,20(x8)
- 274:	00000793          	li	x15,0
- 278:	00171713          	slli	x14,x14,0x1
- 27c:	00e787b3          	add	x15,x15,x14
- 280:	00079983          	lh	x19,0(x15)
- 284:	02000793          	li	x15,32
- 288:	00e787b3          	add	x15,x15,x14
- 28c:	00079903          	lh	x18,0(x15)
- 290:	02d989b3          	mul	x19,x19,x13
- 294:	00c42703          	lw	x14,12(x8)
- 298:	01042583          	lw	x11,16(x8)
- 29c:	19c00793          	li	x15,412
- 2a0:	02d90933          	mul	x18,x18,x13
- 2a4:	00199993          	slli	x19,x19,0x1
- 2a8:	00e989b3          	add	x19,x19,x14
- 2ac:	4089d513          	srai	x10,x19,0x8
- 2b0:	fe850713          	addi	x14,x10,-24
- 2b4:	00191913          	slli	x18,x18,0x1
- 2b8:	00b90933          	add	x18,x18,x11
- 2bc:	10e7fc63          	bgeu	x15,x14,3d4 <game_update_tanks+0x2b8>
- 2c0:	40895593          	srai	x11,x18,0x8
- 2c4:	fe858713          	addi	x14,x11,-24
- 2c8:	19c00793          	li	x15,412
- 2cc:	06e7fe63          	bgeu	x15,x14,348 <game_update_tanks+0x22c>
- 2d0:	00c12983          	lw	x19,12(x2)
- 2d4:	0104f793          	andi	x15,x9,16
- 2d8:	00078a63          	beqz	x15,2ec <game_update_tanks+0x1d0>
- 2dc:	80000737          	lui	x14,0x80000
- 2e0:	01072783          	lw	x15,16(x14) # 80000010 <_stack_top+0x7ffff030>
- 2e4:	0047f793          	andi	x15,x15,4
- 2e8:	06079e63          	bnez	x15,364 <game_update_tanks+0x248>
- 2ec:	0204f493          	andi	x9,x9,32
- 2f0:	00048a63          	beqz	x9,304 <game_update_tanks+0x1e8>
- 2f4:	80000737          	lui	x14,0x80000
- 2f8:	01072783          	lw	x15,16(x14) # 80000010 <_stack_top+0x7ffff030>
- 2fc:	0087f793          	andi	x15,x15,8
- 300:	08079e63          	bnez	x15,39c <game_update_tanks+0x280>
- 304:	01c12083          	lw	x1,28(x2)
- 308:	01812403          	lw	x8,24(x2)
- 30c:	01412483          	lw	x9,20(x2)
- 310:	01012903          	lw	x18,16(x2)
- 314:	02010113          	addi	x2,x2,32
- 318:	00008067          	ret
- 31c:	0024f793          	andi	x15,x9,2
- 320:	fa078ae3          	beqz	x15,2d4 <game_update_tanks+0x1b8>
- 324:	01312623          	sw	x19,12(x2)
- 328:	fff00693          	li	x13,-1
- 32c:	f45ff06f          	j	270 <game_update_tanks+0x154>
- 330:	00297793          	andi	x15,x18,2
- 334:	ec0782e3          	beqz	x15,1f8 <game_update_tanks+0xdc>
- 338:	01312623          	sw	x19,12(x2)
- 33c:	01412423          	sw	x20,8(x2)
- 340:	fff00693          	li	x13,-1
- 344:	e4dff06f          	j	190 <game_update_tanks+0x74>
- 348:	00c42503          	lw	x10,12(x8)
- 34c:	40855513          	srai	x10,x10,0x8
- 350:	480000ef          	jal	7d0 <physics_tank_hits_wall>
- 354:	f6051ee3          	bnez	x10,2d0 <game_update_tanks+0x1b4>
- 358:	00c12983          	lw	x19,12(x2)
- 35c:	01242823          	sw	x18,16(x8)
- 360:	f75ff06f          	j	2d4 <game_update_tanks+0x1b8>
- 364:	00000593          	li	x11,0
- 368:	00200513          	li	x10,2
- 36c:	514000ef          	jal	880 <physics_spawn_bullet>
- 370:	800007b7          	lui	x15,0x80000
- 374:	00400713          	li	x14,4
- 378:	00e7aa23          	sw	x14,20(x15) # 80000014 <_stack_top+0x7ffff034>
- 37c:	f71ff06f          	j	2ec <game_update_tanks+0x1d0>
- 380:	00100593          	li	x11,1
- 384:	00100513          	li	x10,1
- 388:	4f8000ef          	jal	880 <physics_spawn_bullet>
- 38c:	800007b7          	lui	x15,0x80000
- 390:	00200713          	li	x14,2
- 394:	00e7aa23          	sw	x14,20(x15) # 80000014 <_stack_top+0x7ffff034>
- 398:	e91ff06f          	j	228 <game_update_tanks+0x10c>
- 39c:	00100593          	li	x11,1
- 3a0:	00200513          	li	x10,2
- 3a4:	4dc000ef          	jal	880 <physics_spawn_bullet>
- 3a8:	800007b7          	lui	x15,0x80000
- 3ac:	00800713          	li	x14,8
- 3b0:	00e7aa23          	sw	x14,20(x15) # 80000014 <_stack_top+0x7ffff034>
- 3b4:	f51ff06f          	j	304 <game_update_tanks+0x1e8>
- 3b8:	00000593          	li	x11,0
- 3bc:	00100513          	li	x10,1
- 3c0:	4c0000ef          	jal	880 <physics_spawn_bullet>
- 3c4:	800007b7          	lui	x15,0x80000
- 3c8:	00100713          	li	x14,1
- 3cc:	00e7aa23          	sw	x14,20(x15) # 80000014 <_stack_top+0x7ffff034>
- 3d0:	e41ff06f          	j	210 <game_update_tanks+0xf4>
- 3d4:	4085d593          	srai	x11,x11,0x8
- 3d8:	3f8000ef          	jal	7d0 <physics_tank_hits_wall>
- 3dc:	ee0512e3          	bnez	x10,2c0 <game_update_tanks+0x1a4>
- 3e0:	01342623          	sw	x19,12(x8)
- 3e4:	eddff06f          	j	2c0 <game_update_tanks+0x1a4>
- 3e8:	00042503          	lw	x10,0(x8)
- 3ec:	40855513          	srai	x10,x10,0x8
- 3f0:	3e0000ef          	jal	7d0 <physics_tank_hits_wall>
- 3f4:	de051ee3          	bnez	x10,1f0 <game_update_tanks+0xd4>
- 3f8:	01342223          	sw	x19,4(x8)
- 3fc:	00812a03          	lw	x20,8(x2)
- 400:	00c12983          	lw	x19,12(x2)
- 404:	df5ff06f          	j	1f8 <game_update_tanks+0xdc>
- 408:	4085d593          	srai	x11,x11,0x8
- 40c:	3c4000ef          	jal	7d0 <physics_tank_hits_wall>
- 410:	dc0518e3          	bnez	x10,1e0 <game_update_tanks+0xc4>
- 414:	01442023          	sw	x20,0(x8)
- 418:	dc9ff06f          	j	1e0 <game_update_tanks+0xc4>
+00000110 <game_update_tanks>:
+ 110:	fe010113          	addi	x2,x2,-32
+ 114:	00112e23          	sw	x1,28(x2)
+ 118:	04000793          	li	x15,64
+ 11c:	80000737          	lui	x14,0x80000
+ 120:	00470713          	addi	x14,x14,4 # 80000004 <_stack_top+0x7ffff024>
+ 124:	800006b7          	lui	x13,0x80000
+ 128:	0097c603          	lbu	x12,9(x15)
+ 12c:	0006a683          	lw	x13,0(x13) # 80000000 <_stack_top+0x7ffff020>
+ 130:	00072703          	lw	x14,0(x14)
+ 134:	0c060c63          	beqz	x12,20c <game_update_tanks+0xfc>
+ 138:	0046f613          	andi	x12,x13,4
+ 13c:	00060a63          	beqz	x12,150 <game_update_tanks+0x40>
+ 140:	0087c603          	lbu	x12,8(x15)
+ 144:	00f60613          	addi	x12,x12,15
+ 148:	00f67613          	andi	x12,x12,15
+ 14c:	00c78423          	sb	x12,8(x15)
+ 150:	0086f613          	andi	x12,x13,8
+ 154:	00060a63          	beqz	x12,168 <game_update_tanks+0x58>
+ 158:	0087c603          	lbu	x12,8(x15)
+ 15c:	00160613          	addi	x12,x12,1
+ 160:	00f67613          	andi	x12,x12,15
+ 164:	00c78423          	sb	x12,8(x15)
+ 168:	0016f613          	andi	x12,x13,1
+ 16c:	18060c63          	beqz	x12,304 <game_update_tanks+0x1f4>
+ 170:	00100513          	li	x10,1
+ 174:	0087c583          	lbu	x11,8(x15)
+ 178:	00000613          	li	x12,0
+ 17c:	00159593          	slli	x11,x11,0x1
+ 180:	00b60633          	add	x12,x12,x11
+ 184:	00061803          	lh	x16,0(x12)
+ 188:	02000613          	li	x12,32
+ 18c:	00b60633          	add	x12,x12,x11
+ 190:	02a80833          	mul	x16,x16,x10
+ 194:	00061603          	lh	x12,0(x12)
+ 198:	0007a303          	lw	x6,0(x15)
+ 19c:	0047a583          	lw	x11,4(x15)
+ 1a0:	19c00893          	li	x17,412
+ 1a4:	02a60633          	mul	x12,x12,x10
+ 1a8:	00181813          	slli	x16,x16,0x1
+ 1ac:	00680833          	add	x16,x16,x6
+ 1b0:	40885513          	srai	x10,x16,0x8
+ 1b4:	fe850313          	addi	x6,x10,-24
+ 1b8:	00161613          	slli	x12,x12,0x1
+ 1bc:	00b60633          	add	x12,x12,x11
+ 1c0:	2668fe63          	bgeu	x17,x6,43c <game_update_tanks+0x32c>
+ 1c4:	40865593          	srai	x11,x12,0x8
+ 1c8:	fe858813          	addi	x16,x11,-24 # 2fe8 <_stack_top+0x2008>
+ 1cc:	19c00513          	li	x10,412
+ 1d0:	23057c63          	bgeu	x10,x16,408 <game_update_tanks+0x2f8>
+ 1d4:	0106f613          	andi	x12,x13,16
+ 1d8:	00060c63          	beqz	x12,1f0 <game_update_tanks+0xe0>
+ 1dc:	80000637          	lui	x12,0x80000
+ 1e0:	01060613          	addi	x12,x12,16 # 80000010 <_stack_top+0x7ffff030>
+ 1e4:	00062603          	lw	x12,0(x12)
+ 1e8:	00167613          	andi	x12,x12,1
+ 1ec:	18061863          	bnez	x12,37c <game_update_tanks+0x26c>
+ 1f0:	0206f693          	andi	x13,x13,32
+ 1f4:	00068c63          	beqz	x13,20c <game_update_tanks+0xfc>
+ 1f8:	800006b7          	lui	x13,0x80000
+ 1fc:	01068693          	addi	x13,x13,16 # 80000010 <_stack_top+0x7ffff030>
+ 200:	0006a683          	lw	x13,0(x13)
+ 204:	0026f693          	andi	x13,x13,2
+ 208:	12069863          	bnez	x13,338 <game_update_tanks+0x228>
+ 20c:	0157c683          	lbu	x13,21(x15)
+ 210:	0c068c63          	beqz	x13,2e8 <game_update_tanks+0x1d8>
+ 214:	00477693          	andi	x13,x14,4
+ 218:	00068a63          	beqz	x13,22c <game_update_tanks+0x11c>
+ 21c:	0147c683          	lbu	x13,20(x15)
+ 220:	00f68693          	addi	x13,x13,15
+ 224:	00f6f693          	andi	x13,x13,15
+ 228:	00d78a23          	sb	x13,20(x15)
+ 22c:	00877693          	andi	x13,x14,8
+ 230:	00068a63          	beqz	x13,244 <game_update_tanks+0x134>
+ 234:	0147c683          	lbu	x13,20(x15)
+ 238:	00168693          	addi	x13,x13,1
+ 23c:	00f6f693          	andi	x13,x13,15
+ 240:	00d78a23          	sb	x13,20(x15)
+ 244:	00177693          	andi	x13,x14,1
+ 248:	0a068663          	beqz	x13,2f4 <game_update_tanks+0x1e4>
+ 24c:	00100513          	li	x10,1
+ 250:	0147c583          	lbu	x11,20(x15)
+ 254:	00000693          	li	x13,0
+ 258:	00159593          	slli	x11,x11,0x1
+ 25c:	00b686b3          	add	x13,x13,x11
+ 260:	00069603          	lh	x12,0(x13)
+ 264:	02000693          	li	x13,32
+ 268:	00b686b3          	add	x13,x13,x11
+ 26c:	02a60633          	mul	x12,x12,x10
+ 270:	00069683          	lh	x13,0(x13)
+ 274:	00c7a883          	lw	x17,12(x15)
+ 278:	0107a583          	lw	x11,16(x15)
+ 27c:	19c00813          	li	x16,412
+ 280:	02a686b3          	mul	x13,x13,x10
+ 284:	00161613          	slli	x12,x12,0x1
+ 288:	01160633          	add	x12,x12,x17
+ 28c:	40865513          	srai	x10,x12,0x8
+ 290:	fe850893          	addi	x17,x10,-24
+ 294:	00169693          	slli	x13,x13,0x1
+ 298:	00b686b3          	add	x13,x13,x11
+ 29c:	13187e63          	bgeu	x16,x17,3d8 <game_update_tanks+0x2c8>
+ 2a0:	4086d593          	srai	x11,x13,0x8
+ 2a4:	fe858513          	addi	x10,x11,-24
+ 2a8:	19c00613          	li	x12,412
+ 2ac:	10a67063          	bgeu	x12,x10,3ac <game_update_tanks+0x29c>
+ 2b0:	01077793          	andi	x15,x14,16
+ 2b4:	00078c63          	beqz	x15,2cc <game_update_tanks+0x1bc>
+ 2b8:	800007b7          	lui	x15,0x80000
+ 2bc:	01078793          	addi	x15,x15,16 # 80000010 <_stack_top+0x7ffff030>
+ 2c0:	0007a783          	lw	x15,0(x15)
+ 2c4:	0047f793          	andi	x15,x15,4
+ 2c8:	04079663          	bnez	x15,314 <game_update_tanks+0x204>
+ 2cc:	02077713          	andi	x14,x14,32
+ 2d0:	00070c63          	beqz	x14,2e8 <game_update_tanks+0x1d8>
+ 2d4:	800007b7          	lui	x15,0x80000
+ 2d8:	01078793          	addi	x15,x15,16 # 80000010 <_stack_top+0x7ffff030>
+ 2dc:	0007a783          	lw	x15,0(x15)
+ 2e0:	0087f793          	andi	x15,x15,8
+ 2e4:	06079e63          	bnez	x15,360 <game_update_tanks+0x250>
+ 2e8:	01c12083          	lw	x1,28(x2)
+ 2ec:	02010113          	addi	x2,x2,32
+ 2f0:	00008067          	ret
+ 2f4:	00277693          	andi	x13,x14,2
+ 2f8:	fa068ce3          	beqz	x13,2b0 <game_update_tanks+0x1a0>
+ 2fc:	fff00513          	li	x10,-1
+ 300:	f51ff06f          	j	250 <game_update_tanks+0x140>
+ 304:	0026f613          	andi	x12,x13,2
+ 308:	ec0606e3          	beqz	x12,1d4 <game_update_tanks+0xc4>
+ 30c:	fff00513          	li	x10,-1
+ 310:	e65ff06f          	j	174 <game_update_tanks+0x64>
+ 314:	00000593          	li	x11,0
+ 318:	00200513          	li	x10,2
+ 31c:	00e12023          	sw	x14,0(x2)
+ 320:	7d0000ef          	jal	af0 <physics_spawn_bullet>
+ 324:	800007b7          	lui	x15,0x80000
+ 328:	00400693          	li	x13,4
+ 32c:	00012703          	lw	x14,0(x2)
+ 330:	00d7aa23          	sw	x13,20(x15) # 80000014 <_stack_top+0x7ffff034>
+ 334:	f99ff06f          	j	2cc <game_update_tanks+0x1bc>
+ 338:	00100593          	li	x11,1
+ 33c:	00058513          	mv	x10,x11
+ 340:	00e12023          	sw	x14,0(x2)
+ 344:	7ac000ef          	jal	af0 <physics_spawn_bullet>
+ 348:	800006b7          	lui	x13,0x80000
+ 34c:	00200613          	li	x12,2
+ 350:	00012703          	lw	x14,0(x2)
+ 354:	00c6aa23          	sw	x12,20(x13) # 80000014 <_stack_top+0x7ffff034>
+ 358:	04000793          	li	x15,64
+ 35c:	eb1ff06f          	j	20c <game_update_tanks+0xfc>
+ 360:	00100593          	li	x11,1
+ 364:	00200513          	li	x10,2
+ 368:	788000ef          	jal	af0 <physics_spawn_bullet>
+ 36c:	800007b7          	lui	x15,0x80000
+ 370:	00800713          	li	x14,8
+ 374:	00e7aa23          	sw	x14,20(x15) # 80000014 <_stack_top+0x7ffff034>
+ 378:	f71ff06f          	j	2e8 <game_update_tanks+0x1d8>
+ 37c:	00000593          	li	x11,0
+ 380:	00100513          	li	x10,1
+ 384:	00d12223          	sw	x13,4(x2)
+ 388:	00e12023          	sw	x14,0(x2)
+ 38c:	764000ef          	jal	af0 <physics_spawn_bullet>
+ 390:	80000637          	lui	x12,0x80000
+ 394:	00100593          	li	x11,1
+ 398:	00412683          	lw	x13,4(x2)
+ 39c:	00012703          	lw	x14,0(x2)
+ 3a0:	00b62a23          	sw	x11,20(x12) # 80000014 <_stack_top+0x7ffff034>
+ 3a4:	04000793          	li	x15,64
+ 3a8:	e49ff06f          	j	1f0 <game_update_tanks+0xe0>
+ 3ac:	00c7a503          	lw	x10,12(x15)
+ 3b0:	00e12023          	sw	x14,0(x2)
+ 3b4:	00d12223          	sw	x13,4(x2)
+ 3b8:	40855513          	srai	x10,x10,0x8
+ 3bc:	648000ef          	jal	a04 <physics_tank_hits_wall>
+ 3c0:	00012703          	lw	x14,0(x2)
+ 3c4:	ee0516e3          	bnez	x10,2b0 <game_update_tanks+0x1a0>
+ 3c8:	00412683          	lw	x13,4(x2)
+ 3cc:	04000793          	li	x15,64
+ 3d0:	00d7a823          	sw	x13,16(x15)
+ 3d4:	eddff06f          	j	2b0 <game_update_tanks+0x1a0>
+ 3d8:	4085d593          	srai	x11,x11,0x8
+ 3dc:	00e12223          	sw	x14,4(x2)
+ 3e0:	00d12023          	sw	x13,0(x2)
+ 3e4:	00c12423          	sw	x12,8(x2)
+ 3e8:	61c000ef          	jal	a04 <physics_tank_hits_wall>
+ 3ec:	00012683          	lw	x13,0(x2)
+ 3f0:	00412703          	lw	x14,4(x2)
+ 3f4:	04000793          	li	x15,64
+ 3f8:	ea0514e3          	bnez	x10,2a0 <game_update_tanks+0x190>
+ 3fc:	00812603          	lw	x12,8(x2)
+ 400:	00c7a623          	sw	x12,12(x15)
+ 404:	e9dff06f          	j	2a0 <game_update_tanks+0x190>
+ 408:	0007a503          	lw	x10,0(x15)
+ 40c:	00d12223          	sw	x13,4(x2)
+ 410:	00e12023          	sw	x14,0(x2)
+ 414:	40855513          	srai	x10,x10,0x8
+ 418:	00c12423          	sw	x12,8(x2)
+ 41c:	5e8000ef          	jal	a04 <physics_tank_hits_wall>
+ 420:	00012703          	lw	x14,0(x2)
+ 424:	00412683          	lw	x13,4(x2)
+ 428:	04000793          	li	x15,64
+ 42c:	da0514e3          	bnez	x10,1d4 <game_update_tanks+0xc4>
+ 430:	00812603          	lw	x12,8(x2)
+ 434:	00c7a223          	sw	x12,4(x15)
+ 438:	d9dff06f          	j	1d4 <game_update_tanks+0xc4>
+ 43c:	4085d593          	srai	x11,x11,0x8
+ 440:	00d12423          	sw	x13,8(x2)
+ 444:	00e12223          	sw	x14,4(x2)
+ 448:	00c12023          	sw	x12,0(x2)
+ 44c:	01012623          	sw	x16,12(x2)
+ 450:	5b4000ef          	jal	a04 <physics_tank_hits_wall>
+ 454:	00012603          	lw	x12,0(x2)
+ 458:	00412703          	lw	x14,4(x2)
+ 45c:	00812683          	lw	x13,8(x2)
+ 460:	04000793          	li	x15,64
+ 464:	d60510e3          	bnez	x10,1c4 <game_update_tanks+0xb4>
+ 468:	00c12803          	lw	x16,12(x2)
+ 46c:	0107a023          	sw	x16,0(x15)
+ 470:	d55ff06f          	j	1c4 <game_update_tanks+0xb4>
 
-0000041c <game_update_bullets>:
- 41c:	fd010113          	addi	x2,x2,-48
- 420:	800007b7          	lui	x15,0x80000
- 424:	01412c23          	sw	x20,24(x2)
- 428:	0247aa03          	lw	x20,36(x15) # 80000024 <_stack_top+0x7ffff044>
- 42c:	02812423          	sw	x8,40(x2)
- 430:	01312e23          	sw	x19,28(x2)
- 434:	01512a23          	sw	x21,20(x2)
- 438:	01612823          	sw	x22,16(x2)
- 43c:	02112623          	sw	x1,44(x2)
- 440:	02912223          	sw	x9,36(x2)
- 444:	03212023          	sw	x18,32(x2)
- 448:	01712623          	sw	x23,12(x2)
- 44c:	01812423          	sw	x24,8(x2)
- 450:	05800413          	li	x8,88
- 454:	00000993          	li	x19,0
- 458:	00100b13          	li	x22,1
- 45c:	00800a93          	li	x21,8
- 460:	01044703          	lbu	x14,16(x8)
- 464:	013b17b3          	sll	x15,x22,x19
- 468:	0147f7b3          	and	x15,x15,x20
- 46c:	06070e63          	beqz	x14,4e8 <game_update_bullets+0xcc>
- 470:	00042b83          	lw	x23,0(x8)
- 474:	00442c03          	lw	x24,4(x8)
- 478:	00842483          	lw	x9,8(x8)
- 47c:	00c42903          	lw	x18,12(x8)
- 480:	009b84b3          	add	x9,x23,x9
- 484:	012c0933          	add	x18,x24,x18
- 488:	4084d493          	srai	x9,x9,0x8
- 48c:	40895913          	srai	x18,x18,0x8
- 490:	00048513          	mv	x10,x9
- 494:	00090593          	mv	x11,x18
- 498:	00079863          	bnez	x15,4a8 <game_update_bullets+0x8c>
- 49c:	01144603          	lbu	x12,17(x8)
- 4a0:	2cc000ef          	jal	76c <physics_check_and_destroy_tile>
- 4a4:	00050e63          	beqz	x10,4c0 <game_update_bullets+0xa4>
- 4a8:	00090713          	mv	x14,x18
- 4ac:	00048693          	mv	x13,x9
- 4b0:	408c5613          	srai	x12,x24,0x8
- 4b4:	408bd593          	srai	x11,x23,0x8
- 4b8:	00040513          	mv	x10,x8
- 4bc:	4b8000ef          	jal	974 <physics_reflect_bullet>
- 4c0:	01044783          	lbu	x15,16(x8)
- 4c4:	02078263          	beqz	x15,4e8 <game_update_bullets+0xcc>
- 4c8:	00042703          	lw	x14,0(x8)
- 4cc:	00442783          	lw	x15,4(x8)
- 4d0:	00842603          	lw	x12,8(x8)
- 4d4:	00c42683          	lw	x13,12(x8)
- 4d8:	00c70733          	add	x14,x14,x12
- 4dc:	00d787b3          	add	x15,x15,x13
- 4e0:	00e42023          	sw	x14,0(x8)
- 4e4:	00f42223          	sw	x15,4(x8)
- 4e8:	00198993          	addi	x19,x19,1
- 4ec:	01440413          	addi	x8,x8,20
- 4f0:	f75998e3          	bne	x19,x21,460 <game_update_bullets+0x44>
- 4f4:	000a0663          	beqz	x20,500 <game_update_bullets+0xe4>
- 4f8:	800007b7          	lui	x15,0x80000
- 4fc:	0347a223          	sw	x20,36(x15) # 80000024 <_stack_top+0x7ffff044>
- 500:	02c12083          	lw	x1,44(x2)
- 504:	02812403          	lw	x8,40(x2)
- 508:	02412483          	lw	x9,36(x2)
- 50c:	02012903          	lw	x18,32(x2)
- 510:	01c12983          	lw	x19,28(x2)
- 514:	01812a03          	lw	x20,24(x2)
- 518:	01412a83          	lw	x21,20(x2)
- 51c:	01012b03          	lw	x22,16(x2)
- 520:	00c12b83          	lw	x23,12(x2)
- 524:	00812c03          	lw	x24,8(x2)
- 528:	03010113          	addi	x2,x2,48
- 52c:	00008067          	ret
+00000474 <game_update_bullets>:
+ 474:	fd010113          	addi	x2,x2,-48
+ 478:	800007b7          	lui	x15,0x80000
+ 47c:	01412c23          	sw	x20,24(x2)
+ 480:	0247aa03          	lw	x20,36(x15) # 80000024 <_stack_top+0x7ffff044>
+ 484:	02812423          	sw	x8,40(x2)
+ 488:	01312e23          	sw	x19,28(x2)
+ 48c:	01512a23          	sw	x21,20(x2)
+ 490:	01612823          	sw	x22,16(x2)
+ 494:	02112623          	sw	x1,44(x2)
+ 498:	02912223          	sw	x9,36(x2)
+ 49c:	03212023          	sw	x18,32(x2)
+ 4a0:	01712623          	sw	x23,12(x2)
+ 4a4:	01812423          	sw	x24,8(x2)
+ 4a8:	05800413          	li	x8,88
+ 4ac:	00000993          	li	x19,0
+ 4b0:	00100b13          	li	x22,1
+ 4b4:	00800a93          	li	x21,8
+ 4b8:	01044703          	lbu	x14,16(x8)
+ 4bc:	013b17b3          	sll	x15,x22,x19
+ 4c0:	0147f7b3          	and	x15,x15,x20
+ 4c4:	06070e63          	beqz	x14,540 <game_update_bullets+0xcc>
+ 4c8:	00042b83          	lw	x23,0(x8)
+ 4cc:	00842483          	lw	x9,8(x8)
+ 4d0:	00442c03          	lw	x24,4(x8)
+ 4d4:	00c42903          	lw	x18,12(x8)
+ 4d8:	009b84b3          	add	x9,x23,x9
+ 4dc:	4084d493          	srai	x9,x9,0x8
+ 4e0:	012c0933          	add	x18,x24,x18
+ 4e4:	40895913          	srai	x18,x18,0x8
+ 4e8:	00048513          	mv	x10,x9
+ 4ec:	00090593          	mv	x11,x18
+ 4f0:	00079863          	bnez	x15,500 <game_update_bullets+0x8c>
+ 4f4:	01144603          	lbu	x12,17(x8)
+ 4f8:	48c000ef          	jal	984 <physics_check_and_destroy_tile>
+ 4fc:	00050e63          	beqz	x10,518 <game_update_bullets+0xa4>
+ 500:	00090713          	mv	x14,x18
+ 504:	00048693          	mv	x13,x9
+ 508:	408c5613          	srai	x12,x24,0x8
+ 50c:	408bd593          	srai	x11,x23,0x8
+ 510:	00040513          	mv	x10,x8
+ 514:	6d0000ef          	jal	be4 <physics_reflect_bullet>
+ 518:	01044783          	lbu	x15,16(x8)
+ 51c:	02078263          	beqz	x15,540 <game_update_bullets+0xcc>
+ 520:	00042703          	lw	x14,0(x8)
+ 524:	00442783          	lw	x15,4(x8)
+ 528:	00842603          	lw	x12,8(x8)
+ 52c:	00c42683          	lw	x13,12(x8)
+ 530:	00c70733          	add	x14,x14,x12
+ 534:	00d787b3          	add	x15,x15,x13
+ 538:	00e42023          	sw	x14,0(x8)
+ 53c:	00f42223          	sw	x15,4(x8)
+ 540:	00198993          	addi	x19,x19,1
+ 544:	01440413          	addi	x8,x8,20
+ 548:	f75998e3          	bne	x19,x21,4b8 <game_update_bullets+0x44>
+ 54c:	000a0663          	beqz	x20,558 <game_update_bullets+0xe4>
+ 550:	800007b7          	lui	x15,0x80000
+ 554:	0347a223          	sw	x20,36(x15) # 80000024 <_stack_top+0x7ffff044>
+ 558:	02c12083          	lw	x1,44(x2)
+ 55c:	02812403          	lw	x8,40(x2)
+ 560:	02412483          	lw	x9,36(x2)
+ 564:	02012903          	lw	x18,32(x2)
+ 568:	01c12983          	lw	x19,28(x2)
+ 56c:	01812a03          	lw	x20,24(x2)
+ 570:	01412a83          	lw	x21,20(x2)
+ 574:	01012b03          	lw	x22,16(x2)
+ 578:	00c12b83          	lw	x23,12(x2)
+ 57c:	00812c03          	lw	x24,8(x2)
+ 580:	03010113          	addi	x2,x2,48
+ 584:	00008067          	ret
 
-00000530 <game_process_collisions>:
- 530:	800007b7          	lui	x15,0x80000
- 534:	02c7a603          	lw	x12,44(x15) # 8000002c <_stack_top+0x7ffff04c>
- 538:	0ff67593          	zext.b	x11,x12
- 53c:	0c058e63          	beqz	x11,618 <game_process_collisions+0xe8>
- 540:	30067793          	andi	x15,x12,768
- 544:	08078063          	beqz	x15,5c4 <game_process_collisions+0x94>
- 548:	04000893          	li	x17,64
- 54c:	0098c303          	lbu	x6,9(x17)
- 550:	10067e13          	andi	x28,x12,256
- 554:	20067f13          	andi	x30,x12,512
- 558:	01888693          	addi	x13,x17,24
- 55c:	00000f93          	li	x31,0
- 560:	00000713          	li	x14,0
- 564:	00100513          	li	x10,1
- 568:	00800813          	li	x16,8
- 56c:	00e517b3          	sll	x15,x10,x14
- 570:	00b7f7b3          	and	x15,x15,x11
- 574:	02078e63          	beqz	x15,5b0 <game_process_collisions+0x80>
- 578:	0106c783          	lbu	x15,16(x13)
- 57c:	02078a63          	beqz	x15,5b0 <game_process_collisions+0x80>
- 580:	0116c783          	lbu	x15,17(x13)
- 584:	0017b793          	seqz	x15,x15
- 588:	40f007b3          	neg	x15,x15
- 58c:	ffc7f793          	andi	x15,x15,-4
- 590:	00678793          	addi	x15,x15,6
- 594:	080e0663          	beqz	x28,620 <game_process_collisions+0xf0>
- 598:	0136ce83          	lbu	x29,19(x13)
- 59c:	0cae8663          	beq	x29,x10,668 <game_process_collisions+0x138>
- 5a0:	0a67ee63          	bltu	x15,x6,65c <game_process_collisions+0x12c>
- 5a4:	00000313          	li	x6,0
- 5a8:	00068823          	sb	x0,16(x13)
- 5ac:	00100f93          	li	x31,1
- 5b0:	00170713          	addi	x14,x14,1
- 5b4:	01468693          	addi	x13,x13,20
- 5b8:	fb071ae3          	bne	x14,x16,56c <game_process_collisions+0x3c>
- 5bc:	000f8463          	beqz	x31,5c4 <game_process_collisions+0x94>
- 5c0:	006884a3          	sb	x6,9(x17)
- 5c4:	800007b7          	lui	x15,0x80000
- 5c8:	02c7a623          	sw	x12,44(x15) # 8000002c <_stack_top+0x7ffff04c>
- 5cc:	800007b7          	lui	x15,0x80000
- 5d0:	0287a603          	lw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
- 5d4:	0ff67613          	zext.b	x12,x12
- 5d8:	02060e63          	beqz	x12,614 <game_process_collisions+0xe4>
- 5dc:	05800693          	li	x13,88
- 5e0:	00000793          	li	x15,0
- 5e4:	00100513          	li	x10,1
- 5e8:	00800593          	li	x11,8
- 5ec:	00f51733          	sll	x14,x10,x15
- 5f0:	00c77733          	and	x14,x14,x12
- 5f4:	00178793          	addi	x15,x15,1
- 5f8:	00070463          	beqz	x14,600 <game_process_collisions+0xd0>
- 5fc:	00068823          	sb	x0,16(x13)
- 600:	01468693          	addi	x13,x13,20
- 604:	feb794e3          	bne	x15,x11,5ec <game_process_collisions+0xbc>
- 608:	800007b7          	lui	x15,0x80000
- 60c:	02c7a423          	sw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
- 610:	00008067          	ret
- 614:	00008067          	ret
- 618:	fa060ae3          	beqz	x12,5cc <game_process_collisions+0x9c>
- 61c:	fa9ff06f          	j	5c4 <game_process_collisions+0x94>
- 620:	f80f08e3          	beqz	x30,5b0 <game_process_collisions+0x80>
- 624:	0136c283          	lbu	x5,19(x13)
- 628:	00200e93          	li	x29,2
- 62c:	f9d282e3          	beq	x5,x29,5b0 <game_process_collisions+0x80>
- 630:	0158ce83          	lbu	x29,21(x17)
- 634:	00000293          	li	x5,0
- 638:	01d7f663          	bgeu	x15,x29,644 <game_process_collisions+0x114>
- 63c:	40fe8eb3          	sub	x29,x29,x15
- 640:	0ffef293          	zext.b	x5,x29
- 644:	00068823          	sb	x0,16(x13)
- 648:	00588aa3          	sb	x5,21(x17)
- 64c:	00170713          	addi	x14,x14,1
- 650:	01468693          	addi	x13,x13,20
- 654:	f1071ce3          	bne	x14,x16,56c <game_process_collisions+0x3c>
- 658:	f65ff06f          	j	5bc <game_process_collisions+0x8c>
- 65c:	40f30333          	sub	x6,x6,x15
- 660:	0ff37313          	zext.b	x6,x6
- 664:	f45ff06f          	j	5a8 <game_process_collisions+0x78>
- 668:	fc0f14e3          	bnez	x30,630 <game_process_collisions+0x100>
- 66c:	f45ff06f          	j	5b0 <game_process_collisions+0x80>
+00000588 <game_process_collisions>:
+ 588:	800007b7          	lui	x15,0x80000
+ 58c:	02c7a503          	lw	x10,44(x15) # 8000002c <_stack_top+0x7ffff04c>
+ 590:	0ff57593          	zext.b	x11,x10
+ 594:	04059863          	bnez	x11,5e4 <game_process_collisions+0x5c>
+ 598:	26051263          	bnez	x10,7fc <game_process_collisions+0x274>
+ 59c:	800007b7          	lui	x15,0x80000
+ 5a0:	0287a603          	lw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
+ 5a4:	0ff67613          	zext.b	x12,x12
+ 5a8:	02060c63          	beqz	x12,5e0 <game_process_collisions+0x58>
+ 5ac:	05800693          	li	x13,88
+ 5b0:	00000793          	li	x15,0
+ 5b4:	00100513          	li	x10,1
+ 5b8:	00800593          	li	x11,8
+ 5bc:	00f51733          	sll	x14,x10,x15
+ 5c0:	00c77733          	and	x14,x14,x12
+ 5c4:	00178793          	addi	x15,x15,1
+ 5c8:	00070463          	beqz	x14,5d0 <game_process_collisions+0x48>
+ 5cc:	00068823          	sb	x0,16(x13)
+ 5d0:	01468693          	addi	x13,x13,20
+ 5d4:	feb794e3          	bne	x15,x11,5bc <game_process_collisions+0x34>
+ 5d8:	800007b7          	lui	x15,0x80000
+ 5dc:	02c7a423          	sw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
+ 5e0:	00008067          	ret
+ 5e4:	30057793          	andi	x15,x10,768
+ 5e8:	20078a63          	beqz	x15,7fc <game_process_collisions+0x274>
+ 5ec:	fc010113          	addi	x2,x2,-64
+ 5f0:	04000813          	li	x16,64
+ 5f4:	03212a23          	sw	x18,52(x2)
+ 5f8:	03412623          	sw	x20,44(x2)
+ 5fc:	03512423          	sw	x21,40(x2)
+ 600:	03612223          	sw	x22,36(x2)
+ 604:	01a12a23          	sw	x26,20(x2)
+ 608:	01b12823          	sw	x27,16(x2)
+ 60c:	01082783          	lw	x15,16(x16)
+ 610:	02812e23          	sw	x8,60(x2)
+ 614:	03312823          	sw	x19,48(x2)
+ 618:	00082e83          	lw	x29,0(x16)
+ 61c:	00c82f03          	lw	x30,12(x16)
+ 620:	00482d83          	lw	x27,4(x16)
+ 624:	00984e03          	lbu	x28,9(x16)
+ 628:	01584383          	lbu	x7,21(x16)
+ 62c:	4087dd13          	srai	x26,x15,0x8
+ 630:	408eda93          	srai	x21,x29,0x8
+ 634:	408f5b13          	srai	x22,x30,0x8
+ 638:	01880793          	addi	x15,x16,24
+ 63c:	10057f93          	andi	x31,x10,256
+ 640:	20057293          	andi	x5,x10,512
+ 644:	00000a13          	li	x20,0
+ 648:	00000913          	li	x18,0
+ 64c:	00000713          	li	x14,0
+ 650:	00100893          	li	x17,1
+ 654:	00800313          	li	x6,8
+ 658:	00e896b3          	sll	x13,x17,x14
+ 65c:	00b6f6b3          	and	x13,x13,x11
+ 660:	08068a63          	beqz	x13,6f4 <game_process_collisions+0x16c>
+ 664:	0107c683          	lbu	x13,16(x15)
+ 668:	08068663          	beqz	x13,6f4 <game_process_collisions+0x16c>
+ 66c:	0117c603          	lbu	x12,17(x15)
+ 670:	00163693          	seqz	x13,x12
+ 674:	40d006b3          	neg	x13,x13
+ 678:	ffc6f693          	andi	x13,x13,-4
+ 67c:	00668693          	addi	x13,x13,6
+ 680:	140f8e63          	beqz	x31,7dc <game_process_collisions+0x254>
+ 684:	0137ce83          	lbu	x29,19(x15)
+ 688:	1b1e8c63          	beq	x29,x17,840 <game_process_collisions+0x2b8>
+ 68c:	12028863          	beqz	x5,7bc <game_process_collisions+0x234>
+ 690:	00200f13          	li	x30,2
+ 694:	1dee8463          	beq	x29,x30,85c <game_process_collisions+0x2d4>
+ 698:	0047a403          	lw	x8,4(x15)
+ 69c:	0007af03          	lw	x30,0(x15)
+ 6a0:	00163613          	seqz	x12,x12
+ 6a4:	40845413          	srai	x8,x8,0x8
+ 6a8:	40c00633          	neg	x12,x12
+ 6ac:	ffa67613          	andi	x12,x12,-6
+ 6b0:	00040993          	mv	x19,x8
+ 6b4:	408f5f13          	srai	x30,x30,0x8
+ 6b8:	013a8413          	addi	x8,x21,19
+ 6bc:	00c60613          	addi	x12,x12,12
+ 6c0:	0de45263          	bge	x8,x30,784 <game_process_collisions+0x1fc>
+ 6c4:	013b0413          	addi	x8,x22,19
+ 6c8:	17e44463          	blt	x8,x30,830 <game_process_collisions+0x2a8>
+ 6cc:	01e60f33          	add	x30,x12,x30
+ 6d0:	17eb5063          	bge	x22,x30,830 <game_process_collisions+0x2a8>
+ 6d4:	013d0413          	addi	x8,x26,19
+ 6d8:	15344c63          	blt	x8,x19,830 <game_process_collisions+0x2a8>
+ 6dc:	01360633          	add	x12,x12,x19
+ 6e0:	14cd5863          	bge	x26,x12,830 <game_process_collisions+0x2a8>
+ 6e4:	1276e863          	bltu	x13,x7,814 <game_process_collisions+0x28c>
+ 6e8:	00000393          	li	x7,0
+ 6ec:	00078823          	sb	x0,16(x15)
+ 6f0:	00100a13          	li	x20,1
+ 6f4:	00170713          	addi	x14,x14,1
+ 6f8:	01478793          	addi	x15,x15,20
+ 6fc:	f4671ee3          	bne	x14,x6,658 <game_process_collisions+0xd0>
+ 700:	000a0463          	beqz	x20,708 <game_process_collisions+0x180>
+ 704:	00780aa3          	sb	x7,21(x16)
+ 708:	00090463          	beqz	x18,710 <game_process_collisions+0x188>
+ 70c:	01c804a3          	sb	x28,9(x16)
+ 710:	800007b7          	lui	x15,0x80000
+ 714:	02a7a623          	sw	x10,44(x15) # 8000002c <_stack_top+0x7ffff04c>
+ 718:	800007b7          	lui	x15,0x80000
+ 71c:	0287a603          	lw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
+ 720:	0ff67613          	zext.b	x12,x12
+ 724:	02060c63          	beqz	x12,75c <game_process_collisions+0x1d4>
+ 728:	05800693          	li	x13,88
+ 72c:	00000793          	li	x15,0
+ 730:	00100513          	li	x10,1
+ 734:	00800593          	li	x11,8
+ 738:	00f51733          	sll	x14,x10,x15
+ 73c:	00c77733          	and	x14,x14,x12
+ 740:	00178793          	addi	x15,x15,1
+ 744:	00070463          	beqz	x14,74c <game_process_collisions+0x1c4>
+ 748:	00068823          	sb	x0,16(x13)
+ 74c:	01468693          	addi	x13,x13,20
+ 750:	feb794e3          	bne	x15,x11,738 <game_process_collisions+0x1b0>
+ 754:	800007b7          	lui	x15,0x80000
+ 758:	02c7a423          	sw	x12,40(x15) # 80000028 <_stack_top+0x7ffff048>
+ 75c:	03c12403          	lw	x8,60(x2)
+ 760:	03412903          	lw	x18,52(x2)
+ 764:	03012983          	lw	x19,48(x2)
+ 768:	02c12a03          	lw	x20,44(x2)
+ 76c:	02812a83          	lw	x21,40(x2)
+ 770:	02412b03          	lw	x22,36(x2)
+ 774:	01412d03          	lw	x26,20(x2)
+ 778:	01012d83          	lw	x27,16(x2)
+ 77c:	04010113          	addi	x2,x2,64
+ 780:	00008067          	ret
+ 784:	01912c23          	sw	x25,24(x2)
+ 788:	01e60433          	add	x8,x12,x30
+ 78c:	00040c93          	mv	x25,x8
+ 790:	088ad863          	bge	x21,x8,820 <game_process_collisions+0x298>
+ 794:	408dd413          	srai	x8,x27,0x8
+ 798:	00812623          	sw	x8,12(x2)
+ 79c:	01340413          	addi	x8,x8,19
+ 7a0:	09344063          	blt	x8,x19,820 <game_process_collisions+0x298>
+ 7a4:	013b0413          	addi	x8,x22,19
+ 7a8:	01360633          	add	x12,x12,x19
+ 7ac:	0de45463          	bge	x8,x30,874 <game_process_collisions+0x2ec>
+ 7b0:	00c12f03          	lw	x30,12(x2)
+ 7b4:	01812c83          	lw	x25,24(x2)
+ 7b8:	06cf5c63          	bge	x30,x12,830 <game_process_collisions+0x2a8>
+ 7bc:	05c6e663          	bltu	x13,x28,808 <game_process_collisions+0x280>
+ 7c0:	00000e13          	li	x28,0
+ 7c4:	00078823          	sb	x0,16(x15)
+ 7c8:	00170713          	addi	x14,x14,1
+ 7cc:	00100913          	li	x18,1
+ 7d0:	01478793          	addi	x15,x15,20
+ 7d4:	e86712e3          	bne	x14,x6,658 <game_process_collisions+0xd0>
+ 7d8:	f29ff06f          	j	700 <game_process_collisions+0x178>
+ 7dc:	f0028ce3          	beqz	x5,6f4 <game_process_collisions+0x16c>
+ 7e0:	0137ce83          	lbu	x29,19(x15)
+ 7e4:	00200613          	li	x12,2
+ 7e8:	eece9ee3          	bne	x29,x12,6e4 <game_process_collisions+0x15c>
+ 7ec:	0127c603          	lbu	x12,18(x15)
+ 7f0:	f00602e3          	beqz	x12,6f4 <game_process_collisions+0x16c>
+ 7f4:	ee76fae3          	bgeu	x13,x7,6e8 <game_process_collisions+0x160>
+ 7f8:	01c0006f          	j	814 <game_process_collisions+0x28c>
+ 7fc:	800007b7          	lui	x15,0x80000
+ 800:	02a7a623          	sw	x10,44(x15) # 8000002c <_stack_top+0x7ffff04c>
+ 804:	d99ff06f          	j	59c <game_process_collisions+0x14>
+ 808:	40de06b3          	sub	x13,x28,x13
+ 80c:	0ff6fe13          	zext.b	x28,x13
+ 810:	fb5ff06f          	j	7c4 <game_process_collisions+0x23c>
+ 814:	40d386b3          	sub	x13,x7,x13
+ 818:	0ff6f393          	zext.b	x7,x13
+ 81c:	ed1ff06f          	j	6ec <game_process_collisions+0x164>
+ 820:	013b0413          	addi	x8,x22,19
+ 824:	01e44463          	blt	x8,x30,82c <game_process_collisions+0x2a4>
+ 828:	059b4263          	blt	x22,x25,86c <game_process_collisions+0x2e4>
+ 82c:	01812c83          	lw	x25,24(x2)
+ 830:	00100613          	li	x12,1
+ 834:	eace88e3          	beq	x29,x12,6e4 <game_process_collisions+0x15c>
+ 838:	f9c6f4e3          	bgeu	x13,x28,7c0 <game_process_collisions+0x238>
+ 83c:	fcdff06f          	j	808 <game_process_collisions+0x280>
+ 840:	0127cf03          	lbu	x30,18(x15)
+ 844:	000f0863          	beqz	x30,854 <game_process_collisions+0x2cc>
+ 848:	e40298e3          	bnez	x5,698 <game_process_collisions+0x110>
+ 84c:	f7c6fae3          	bgeu	x13,x28,7c0 <game_process_collisions+0x238>
+ 850:	fb9ff06f          	j	808 <game_process_collisions+0x280>
+ 854:	ea0280e3          	beqz	x5,6f4 <game_process_collisions+0x16c>
+ 858:	e8dff06f          	j	6e4 <game_process_collisions+0x15c>
+ 85c:	0127cf03          	lbu	x30,18(x15)
+ 860:	e20f1ce3          	bnez	x30,698 <game_process_collisions+0x110>
+ 864:	f5c6fee3          	bgeu	x13,x28,7c0 <game_process_collisions+0x238>
+ 868:	fa1ff06f          	j	808 <game_process_collisions+0x280>
+ 86c:	01812c83          	lw	x25,24(x2)
+ 870:	e65ff06f          	j	6d4 <game_process_collisions+0x14c>
+ 874:	f39b5ee3          	bge	x22,x25,7b0 <game_process_collisions+0x228>
+ 878:	013d0f13          	addi	x30,x26,19
+ 87c:	f33f4ae3          	blt	x30,x19,7b0 <game_process_collisions+0x228>
+ 880:	f2cd58e3          	bge	x26,x12,7b0 <game_process_collisions+0x228>
+ 884:	00c12f03          	lw	x30,12(x2)
+ 888:	01812c83          	lw	x25,24(x2)
+ 88c:	facf42e3          	blt	x30,x12,830 <game_process_collisions+0x2a8>
+ 890:	e476fce3          	bgeu	x13,x7,6e8 <game_process_collisions+0x160>
+ 894:	f81ff06f          	j	814 <game_process_collisions+0x28c>
 
-00000670 <game_sync_display>:
- 670:	04000813          	li	x16,64
- 674:	00482783          	lw	x15,4(x16)
- 678:	00082703          	lw	x14,0(x16)
- 67c:	03ff06b7          	lui	x13,0x3ff0
- 680:	00879793          	slli	x15,x15,0x8
- 684:	40875713          	srai	x14,x14,0x8
- 688:	00d7f7b3          	and	x15,x15,x13
- 68c:	3ff77713          	andi	x14,x14,1023
- 690:	00e7e7b3          	or	x15,x15,x14
- 694:	800005b7          	lui	x11,0x80000
- 698:	04f5a023          	sw	x15,64(x11) # 80000040 <_stack_top+0x7ffff060>
- 69c:	01082783          	lw	x15,16(x16)
- 6a0:	00c82703          	lw	x14,12(x16)
- 6a4:	80000637          	lui	x12,0x80000
- 6a8:	00879793          	slli	x15,x15,0x8
- 6ac:	40875713          	srai	x14,x14,0x8
- 6b0:	00d7f7b3          	and	x15,x15,x13
- 6b4:	3ff77713          	andi	x14,x14,1023
- 6b8:	00e7e7b3          	or	x15,x15,x14
- 6bc:	04f62223          	sw	x15,68(x12) # 80000044 <_stack_top+0x7ffff064>
- 6c0:	01484783          	lbu	x15,20(x16)
- 6c4:	00884703          	lbu	x14,8(x16)
- 6c8:	800006b7          	lui	x13,0x80000
- 6cc:	00479793          	slli	x15,x15,0x4
- 6d0:	00f77713          	andi	x14,x14,15
- 6d4:	0ff7f793          	zext.b	x15,x15
- 6d8:	00e7e7b3          	or	x15,x15,x14
- 6dc:	80000537          	lui	x10,0x80000
- 6e0:	00100337          	lui	x6,0x100
- 6e4:	800008b7          	lui	x17,0x80000
- 6e8:	01880713          	addi	x14,x16,24
- 6ec:	04850513          	addi	x10,x10,72 # 80000048 <_stack_top+0x7ffff068>
- 6f0:	00200eb7          	lui	x29,0x200
- 6f4:	00100e37          	lui	x28,0x100
- 6f8:	c0030313          	addi	x6,x6,-1024 # ffc00 <_stack_top+0xfec20>
- 6fc:	06888893          	addi	x17,x17,104 # 80000068 <_stack_top+0x7ffff088>
- 700:	08f6a223          	sw	x15,132(x13) # 80000084 <_stack_top+0x7ffff0a4>
- 704:	01174783          	lbu	x15,17(x14)
- 708:	01074583          	lbu	x11,16(x14)
- 70c:	00072603          	lw	x12,0(x14)
- 710:	00472683          	lw	x13,4(x14)
- 714:	01579793          	slli	x15,x15,0x15
- 718:	01459593          	slli	x11,x11,0x14
- 71c:	01d7f7b3          	and	x15,x15,x29
- 720:	01c5f5b3          	and	x11,x11,x28
- 724:	40865613          	srai	x12,x12,0x8
- 728:	00b7e7b3          	or	x15,x15,x11
- 72c:	3ff67613          	andi	x12,x12,1023
- 730:	00269693          	slli	x13,x13,0x2
- 734:	00c7e7b3          	or	x15,x15,x12
- 738:	0066f6b3          	and	x13,x13,x6
- 73c:	00d7e7b3          	or	x15,x15,x13
- 740:	00f52023          	sw	x15,0(x10)
- 744:	00450513          	addi	x10,x10,4
- 748:	01470713          	addi	x14,x14,20
- 74c:	fb151ce3          	bne	x10,x17,704 <game_sync_display+0x94>
- 750:	01584783          	lbu	x15,21(x16)
- 754:	00984683          	lbu	x13,9(x16)
- 758:	80000737          	lui	x14,0x80000
- 75c:	00879793          	slli	x15,x15,0x8
- 760:	00d7e7b3          	or	x15,x15,x13
- 764:	08f72023          	sw	x15,128(x14) # 80000080 <_stack_top+0x7ffff0a0>
- 768:	00008067          	ret
+00000898 <game_sync_display>:
+ 898:	04000813          	li	x16,64
+ 89c:	00482683          	lw	x13,4(x16)
+ 8a0:	00082583          	lw	x11,0(x16)
+ 8a4:	01082703          	lw	x14,16(x16)
+ 8a8:	00c82603          	lw	x12,12(x16)
+ 8ac:	01484783          	lbu	x15,20(x16)
+ 8b0:	03ff0337          	lui	x6,0x3ff0
+ 8b4:	00869693          	slli	x13,x13,0x8
+ 8b8:	4085d593          	srai	x11,x11,0x8
+ 8bc:	00884503          	lbu	x10,8(x16)
+ 8c0:	0066f6b3          	and	x13,x13,x6
+ 8c4:	3ff5f593          	andi	x11,x11,1023
+ 8c8:	00871713          	slli	x14,x14,0x8
+ 8cc:	40865613          	srai	x12,x12,0x8
+ 8d0:	800008b7          	lui	x17,0x80000
+ 8d4:	00677733          	and	x14,x14,x6
+ 8d8:	00b6e6b3          	or	x13,x13,x11
+ 8dc:	3ff67613          	andi	x12,x12,1023
+ 8e0:	04d8a023          	sw	x13,64(x17) # 80000040 <_stack_top+0x7ffff060>
+ 8e4:	00c76733          	or	x14,x14,x12
+ 8e8:	00479793          	slli	x15,x15,0x4
+ 8ec:	04e8a223          	sw	x14,68(x17)
+ 8f0:	0ff7f793          	zext.b	x15,x15
+ 8f4:	00f57713          	andi	x14,x10,15
+ 8f8:	00e7e7b3          	or	x15,x15,x14
+ 8fc:	00100337          	lui	x6,0x100
+ 900:	08f8a223          	sw	x15,132(x17)
+ 904:	04888513          	addi	x10,x17,72
+ 908:	01880713          	addi	x14,x16,24
+ 90c:	c0030313          	addi	x6,x6,-1024 # ffc00 <_stack_top+0xfec20>
+ 910:	06888893          	addi	x17,x17,104
+ 914:	00200eb7          	lui	x29,0x200
+ 918:	00100e37          	lui	x28,0x100
+ 91c:	01174783          	lbu	x15,17(x14)
+ 920:	01074583          	lbu	x11,16(x14)
+ 924:	00072603          	lw	x12,0(x14)
+ 928:	00472683          	lw	x13,4(x14)
+ 92c:	01579793          	slli	x15,x15,0x15
+ 930:	01459593          	slli	x11,x11,0x14
+ 934:	01d7f7b3          	and	x15,x15,x29
+ 938:	01c5f5b3          	and	x11,x11,x28
+ 93c:	40865613          	srai	x12,x12,0x8
+ 940:	00b7e7b3          	or	x15,x15,x11
+ 944:	3ff67613          	andi	x12,x12,1023
+ 948:	00269693          	slli	x13,x13,0x2
+ 94c:	00c7e7b3          	or	x15,x15,x12
+ 950:	0066f6b3          	and	x13,x13,x6
+ 954:	00d7e7b3          	or	x15,x15,x13
+ 958:	00f52023          	sw	x15,0(x10)
+ 95c:	00450513          	addi	x10,x10,4
+ 960:	01470713          	addi	x14,x14,20
+ 964:	fb151ce3          	bne	x10,x17,91c <game_sync_display+0x84>
+ 968:	01584783          	lbu	x15,21(x16)
+ 96c:	00984683          	lbu	x13,9(x16)
+ 970:	80000737          	lui	x14,0x80000
+ 974:	00879793          	slli	x15,x15,0x8
+ 978:	00d7e7b3          	or	x15,x15,x13
+ 97c:	08f72023          	sw	x15,128(x14) # 80000080 <_stack_top+0x7ffff0a0>
+ 980:	00008067          	ret
 
-0000076c <physics_check_and_destroy_tile>:
- 76c:	1df00713          	li	x14,479
- 770:	00050793          	mv	x15,x10
- 774:	04a76463          	bltu	x14,x10,7bc <physics_check_and_destroy_tile+0x50>
- 778:	04b76263          	bltu	x14,x11,7bc <physics_check_and_destroy_tile+0x50>
- 77c:	01800713          	li	x14,24
- 780:	02e5c5b3          	div	x11,x11,x14
- 784:	800006b7          	lui	x13,0x80000
- 788:	10068693          	addi	x13,x13,256 # 80000100 <_stack_top+0x7ffff120>
- 78c:	00000513          	li	x10,0
- 790:	02e7c7b3          	div	x15,x15,x14
- 794:	00259713          	slli	x14,x11,0x2
- 798:	00b70733          	add	x14,x14,x11
- 79c:	00271713          	slli	x14,x14,0x2
- 7a0:	00f707b3          	add	x15,x14,x15
- 7a4:	00279793          	slli	x15,x15,0x2
- 7a8:	00d787b3          	add	x15,x15,x13
- 7ac:	0007a703          	lw	x14,0(x15)
- 7b0:	00070863          	beqz	x14,7c0 <physics_check_and_destroy_tile+0x54>
- 7b4:	00100693          	li	x13,1
- 7b8:	00d70663          	beq	x14,x13,7c4 <physics_check_and_destroy_tile+0x58>
- 7bc:	00100513          	li	x10,1
- 7c0:	00008067          	ret
- 7c4:	0007a023          	sw	x0,0(x15)
- 7c8:	00100513          	li	x10,1
- 7cc:	00008067          	ret
+00000984 <physics_check_and_destroy_tile>:
+ 984:	1e053713          	sltiu	x14,x10,480
+ 988:	06070463          	beqz	x14,9f0 <physics_check_and_destroy_tile+0x6c>
+ 98c:	1e05b713          	sltiu	x14,x11,480
+ 990:	06070063          	beqz	x14,9f0 <physics_check_and_destroy_tile+0x6c>
+ 994:	2aaab737          	lui	x14,0x2aaab
+ 998:	aab70713          	addi	x14,x14,-1365 # 2aaaaaab <_stack_top+0x2aaa9acb>
+ 99c:	02e596b3          	mulh	x13,x11,x14
+ 9a0:	41f5d593          	srai	x11,x11,0x1f
+ 9a4:	41f55813          	srai	x16,x10,0x1f
+ 9a8:	80000637          	lui	x12,0x80000
+ 9ac:	10060613          	addi	x12,x12,256 # 80000100 <_stack_top+0x7ffff120>
+ 9b0:	02e517b3          	mulh	x15,x10,x14
+ 9b4:	4026d693          	srai	x13,x13,0x2
+ 9b8:	40b686b3          	sub	x13,x13,x11
+ 9bc:	00269713          	slli	x14,x13,0x2
+ 9c0:	00d70733          	add	x14,x14,x13
+ 9c4:	00271713          	slli	x14,x14,0x2
+ 9c8:	00000513          	li	x10,0
+ 9cc:	4027d793          	srai	x15,x15,0x2
+ 9d0:	410787b3          	sub	x15,x15,x16
+ 9d4:	00f707b3          	add	x15,x14,x15
+ 9d8:	00279793          	slli	x15,x15,0x2
+ 9dc:	00c787b3          	add	x15,x15,x12
+ 9e0:	0007a703          	lw	x14,0(x15)
+ 9e4:	00070863          	beqz	x14,9f4 <physics_check_and_destroy_tile+0x70>
+ 9e8:	00100693          	li	x13,1
+ 9ec:	00d70663          	beq	x14,x13,9f8 <physics_check_and_destroy_tile+0x74>
+ 9f0:	00100513          	li	x10,1
+ 9f4:	00008067          	ret
+ 9f8:	0007a023          	sw	x0,0(x15)
+ 9fc:	00100513          	li	x10,1
+ a00:	00008067          	ret
 
-000007d0 <physics_tank_hits_wall>:
- 7d0:	00050793          	mv	x15,x10
- 7d4:	1df00713          	li	x14,479
- 7d8:	00100513          	li	x10,1
- 7dc:	04f76e63          	bltu	x14,x15,838 <physics_tank_hits_wall+0x68>
- 7e0:	04b76c63          	bltu	x14,x11,838 <physics_tank_hits_wall+0x68>
- 7e4:	01800893          	li	x17,24
- 7e8:	0315c633          	div	x12,x11,x17
- 7ec:	80000837          	lui	x16,0x80000
- 7f0:	10080813          	addi	x16,x16,256 # 80000100 <_stack_top+0x7ffff120>
- 7f4:	0317c333          	div	x6,x15,x17
- 7f8:	00261693          	slli	x13,x12,0x2
- 7fc:	00c686b3          	add	x13,x13,x12
- 800:	00269693          	slli	x13,x13,0x2
- 804:	00668633          	add	x12,x13,x6
- 808:	00261613          	slli	x12,x12,0x2
- 80c:	01060633          	add	x12,x12,x16
- 810:	00062603          	lw	x12,0(x12)
- 814:	02061263          	bnez	x12,838 <physics_tank_hits_wall+0x68>
- 818:	01378793          	addi	x15,x15,19
- 81c:	00f74e63          	blt	x14,x15,838 <physics_tank_hits_wall+0x68>
- 820:	0317c7b3          	div	x15,x15,x17
- 824:	00f686b3          	add	x13,x13,x15
- 828:	00269693          	slli	x13,x13,0x2
- 82c:	010686b3          	add	x13,x13,x16
- 830:	0006a683          	lw	x13,0(x13)
- 834:	00068463          	beqz	x13,83c <physics_tank_hits_wall+0x6c>
- 838:	00008067          	ret
- 83c:	01358593          	addi	x11,x11,19
- 840:	feb74ce3          	blt	x14,x11,838 <physics_tank_hits_wall+0x68>
- 844:	0315c5b3          	div	x11,x11,x17
- 848:	00259693          	slli	x13,x11,0x2
- 84c:	00b686b3          	add	x13,x13,x11
- 850:	00269693          	slli	x13,x13,0x2
- 854:	00d30733          	add	x14,x6,x13
- 858:	00271713          	slli	x14,x14,0x2
- 85c:	01070733          	add	x14,x14,x16
- 860:	00072703          	lw	x14,0(x14)
- 864:	fc071ae3          	bnez	x14,838 <physics_tank_hits_wall+0x68>
- 868:	00d787b3          	add	x15,x15,x13
- 86c:	00279793          	slli	x15,x15,0x2
- 870:	010787b3          	add	x15,x15,x16
- 874:	0007a503          	lw	x10,0(x15)
- 878:	00a03533          	snez	x10,x10
- 87c:	00008067          	ret
+00000a04 <physics_tank_hits_wall>:
+ a04:	1e053793          	sltiu	x15,x10,480
+ a08:	00050713          	mv	x14,x10
+ a0c:	0c078263          	beqz	x15,ad0 <physics_tank_hits_wall+0xcc>
+ a10:	1e05b793          	sltiu	x15,x11,480
+ a14:	0a078e63          	beqz	x15,ad0 <physics_tank_hits_wall+0xcc>
+ a18:	2aaab7b7          	lui	x15,0x2aaab
+ a1c:	aab78793          	addi	x15,x15,-1365 # 2aaaaaab <_stack_top+0x2aaa9acb>
+ a20:	02f59633          	mulh	x12,x11,x15
+ a24:	41f5d693          	srai	x13,x11,0x1f
+ a28:	80000837          	lui	x16,0x80000
+ a2c:	10080813          	addi	x16,x16,256 # 80000100 <_stack_top+0x7ffff120>
+ a30:	00100513          	li	x10,1
+ a34:	02f717b3          	mulh	x15,x14,x15
+ a38:	40265613          	srai	x12,x12,0x2
+ a3c:	40d60633          	sub	x12,x12,x13
+ a40:	00261693          	slli	x13,x12,0x2
+ a44:	00c686b3          	add	x13,x13,x12
+ a48:	41f75613          	srai	x12,x14,0x1f
+ a4c:	00269693          	slli	x13,x13,0x2
+ a50:	4027d793          	srai	x15,x15,0x2
+ a54:	40c787b3          	sub	x15,x15,x12
+ a58:	00f68633          	add	x12,x13,x15
+ a5c:	00261613          	slli	x12,x12,0x2
+ a60:	01060633          	add	x12,x12,x16
+ a64:	00062603          	lw	x12,0(x12)
+ a68:	06061263          	bnez	x12,acc <physics_tank_hits_wall+0xc8>
+ a6c:	01370713          	addi	x14,x14,19
+ a70:	1df00893          	li	x17,479
+ a74:	04e8cc63          	blt	x17,x14,acc <physics_tank_hits_wall+0xc8>
+ a78:	aaaab637          	lui	x12,0xaaaab
+ a7c:	aab60613          	addi	x12,x12,-1365 # aaaaaaab <_stack_top+0xaaaa9acb>
+ a80:	02c73733          	mulhu	x14,x14,x12
+ a84:	00475713          	srli	x14,x14,0x4
+ a88:	00e686b3          	add	x13,x13,x14
+ a8c:	00269693          	slli	x13,x13,0x2
+ a90:	010686b3          	add	x13,x13,x16
+ a94:	0006a683          	lw	x13,0(x13)
+ a98:	02069a63          	bnez	x13,acc <physics_tank_hits_wall+0xc8>
+ a9c:	01358593          	addi	x11,x11,19
+ aa0:	02b8c663          	blt	x17,x11,acc <physics_tank_hits_wall+0xc8>
+ aa4:	02c5b5b3          	mulhu	x11,x11,x12
+ aa8:	0045d593          	srli	x11,x11,0x4
+ aac:	00259693          	slli	x13,x11,0x2
+ ab0:	00b686b3          	add	x13,x13,x11
+ ab4:	00269693          	slli	x13,x13,0x2
+ ab8:	00d787b3          	add	x15,x15,x13
+ abc:	00279793          	slli	x15,x15,0x2
+ ac0:	010787b3          	add	x15,x15,x16
+ ac4:	0007a783          	lw	x15,0(x15)
+ ac8:	00078863          	beqz	x15,ad8 <physics_tank_hits_wall+0xd4>
+ acc:	00008067          	ret
+ ad0:	00100513          	li	x10,1
+ ad4:	00008067          	ret
+ ad8:	00d707b3          	add	x15,x14,x13
+ adc:	00279793          	slli	x15,x15,0x2
+ ae0:	010787b3          	add	x15,x15,x16
+ ae4:	0007a503          	lw	x10,0(x15)
+ ae8:	00a03533          	snez	x10,x10
+ aec:	00008067          	ret
 
-00000880 <physics_spawn_bullet>:
- 880:	00100793          	li	x15,1
- 884:	0ef50063          	beq	x10,x15,964 <physics_spawn_bullet+0xe4>
- 888:	00700613          	li	x12,7
- 88c:	00400713          	li	x14,4
- 890:	04c00893          	li	x17,76
- 894:	00271793          	slli	x15,x14,0x2
- 898:	00e787b3          	add	x15,x15,x14
- 89c:	00279793          	slli	x15,x15,0x2
- 8a0:	05800813          	li	x16,88
- 8a4:	00f807b3          	add	x15,x16,x15
- 8a8:	00c0006f          	j	8b4 <physics_spawn_bullet+0x34>
- 8ac:	00170713          	addi	x14,x14,1
- 8b0:	0ae64863          	blt	x12,x14,960 <physics_spawn_bullet+0xe0>
- 8b4:	0107c683          	lbu	x13,16(x15)
- 8b8:	01478793          	addi	x15,x15,20
- 8bc:	fe0698e3          	bnez	x13,8ac <physics_spawn_bullet+0x2c>
- 8c0:	0088c683          	lbu	x13,8(x17)
- 8c4:	00000793          	li	x15,0
- 8c8:	00169693          	slli	x13,x13,0x1
- 8cc:	00d787b3          	add	x15,x15,x13
- 8d0:	00079283          	lh	x5,0(x15)
- 8d4:	02079f03          	lh	x30,32(x15)
- 8d8:	0015b793          	seqz	x15,x11
- 8dc:	00179793          	slli	x15,x15,0x1
- 8e0:	00478793          	addi	x15,x15,4
- 8e4:	00271e13          	slli	x28,x14,0x2
- 8e8:	02578fb3          	mul	x31,x15,x5
- 8ec:	00ee0e33          	add	x28,x28,x14
- 8f0:	0008a603          	lw	x12,0(x17)
- 8f4:	0048a683          	lw	x13,4(x17)
- 8f8:	00001eb7          	lui	x29,0x1
- 8fc:	00329313          	slli	x6,x5,0x3
- 900:	003f1893          	slli	x17,x30,0x3
- 904:	a00e8e93          	addi	x29,x29,-1536 # a00 <physics_reflect_bullet+0x8c>
- 908:	40530333          	sub	x6,x6,x5
- 90c:	41e888b3          	sub	x17,x17,x30
- 910:	03e78733          	mul	x14,x15,x30
- 914:	01d60633          	add	x12,x12,x29
- 918:	002e1793          	slli	x15,x28,0x2
- 91c:	00131313          	slli	x6,x6,0x1
- 920:	01d686b3          	add	x13,x13,x29
- 924:	00189893          	slli	x17,x17,0x1
- 928:	00f807b3          	add	x15,x16,x15
- 92c:	00b035b3          	snez	x11,x11
- 930:	00660633          	add	x12,x12,x6
- 934:	011686b3          	add	x13,x13,x17
- 938:	00100813          	li	x16,1
- 93c:	01078823          	sb	x16,16(x15)
- 940:	00b788a3          	sb	x11,17(x15)
- 944:	00078923          	sb	x0,18(x15)
- 948:	00a789a3          	sb	x10,19(x15)
- 94c:	00c7a023          	sw	x12,0(x15)
- 950:	00d7a223          	sw	x13,4(x15)
- 954:	01f7a423          	sw	x31,8(x15)
- 958:	00e7a623          	sw	x14,12(x15)
- 95c:	00008067          	ret
- 960:	00008067          	ret
- 964:	00300613          	li	x12,3
- 968:	00000713          	li	x14,0
- 96c:	04000893          	li	x17,64
- 970:	f25ff06f          	j	894 <physics_spawn_bullet+0x14>
+00000af0 <physics_spawn_bullet>:
+ af0:	00100793          	li	x15,1
+ af4:	0ef50063          	beq	x10,x15,bd4 <physics_spawn_bullet+0xe4>
+ af8:	04c00893          	li	x17,76
+ afc:	00400713          	li	x14,4
+ b00:	00700613          	li	x12,7
+ b04:	00271793          	slli	x15,x14,0x2
+ b08:	00e787b3          	add	x15,x15,x14
+ b0c:	00279793          	slli	x15,x15,0x2
+ b10:	05800813          	li	x16,88
+ b14:	00f807b3          	add	x15,x16,x15
+ b18:	00c0006f          	j	b24 <physics_spawn_bullet+0x34>
+ b1c:	00170713          	addi	x14,x14,1
+ b20:	0ae64863          	blt	x12,x14,bd0 <physics_spawn_bullet+0xe0>
+ b24:	0107c683          	lbu	x13,16(x15)
+ b28:	01478793          	addi	x15,x15,20
+ b2c:	fe0698e3          	bnez	x13,b1c <physics_spawn_bullet+0x2c>
+ b30:	0088c683          	lbu	x13,8(x17)
+ b34:	00000793          	li	x15,0
+ b38:	00169693          	slli	x13,x13,0x1
+ b3c:	00d787b3          	add	x15,x15,x13
+ b40:	00079f03          	lh	x30,0(x15)
+ b44:	02079e83          	lh	x29,32(x15)
+ b48:	0015b793          	seqz	x15,x11
+ b4c:	00179793          	slli	x15,x15,0x1
+ b50:	00478793          	addi	x15,x15,4
+ b54:	00271313          	slli	x6,x14,0x2
+ b58:	03e78fb3          	mul	x31,x15,x30
+ b5c:	00e30333          	add	x6,x6,x14
+ b60:	0008a603          	lw	x12,0(x17)
+ b64:	0048a683          	lw	x13,4(x17)
+ b68:	003f1e13          	slli	x28,x30,0x3
+ b6c:	003e9893          	slli	x17,x29,0x3
+ b70:	41ee0e33          	sub	x28,x28,x30
+ b74:	41d888b3          	sub	x17,x17,x29
+ b78:	7ff60613          	addi	x12,x12,2047
+ b7c:	7ff68693          	addi	x13,x13,2047
+ b80:	03d78733          	mul	x14,x15,x29
+ b84:	001e1e13          	slli	x28,x28,0x1
+ b88:	20160613          	addi	x12,x12,513
+ b8c:	20168693          	addi	x13,x13,513
+ b90:	00231793          	slli	x15,x6,0x2
+ b94:	00189893          	slli	x17,x17,0x1
+ b98:	00f807b3          	add	x15,x16,x15
+ b9c:	01c60633          	add	x12,x12,x28
+ ba0:	00100813          	li	x16,1
+ ba4:	00b035b3          	snez	x11,x11
+ ba8:	011686b3          	add	x13,x13,x17
+ bac:	00c7a023          	sw	x12,0(x15)
+ bb0:	00078923          	sb	x0,18(x15)
+ bb4:	00a789a3          	sb	x10,19(x15)
+ bb8:	01078823          	sb	x16,16(x15)
+ bbc:	00b788a3          	sb	x11,17(x15)
+ bc0:	01f7a423          	sw	x31,8(x15)
+ bc4:	00e7a623          	sw	x14,12(x15)
+ bc8:	00d7a223          	sw	x13,4(x15)
+ bcc:	00008067          	ret
+ bd0:	00008067          	ret
+ bd4:	04000893          	li	x17,64
+ bd8:	00000713          	li	x14,0
+ bdc:	00300613          	li	x12,3
+ be0:	f25ff06f          	j	b04 <physics_spawn_bullet+0x14>
 
-00000974 <physics_reflect_bullet>:
- 974:	fe768893          	addi	x17,x13,-25
- 978:	1ae00813          	li	x16,430
- 97c:	00050793          	mv	x15,x10
- 980:	fe770513          	addi	x10,x14,-25
- 984:	07186663          	bltu	x16,x17,9f0 <physics_reflect_bullet+0x7c>
- 988:	02a87863          	bgeu	x16,x10,9b8 <physics_reflect_bullet+0x44>
- 98c:	00c7a703          	lw	x14,12(x15)
- 990:	40e00733          	neg	x14,x14
- 994:	00e7a623          	sw	x14,12(x15)
- 998:	0127c703          	lbu	x14,18(x15)
- 99c:	00400693          	li	x13,4
- 9a0:	00100513          	li	x10,1
- 9a4:	00170713          	addi	x14,x14,1
- 9a8:	0ff77713          	zext.b	x14,x14
- 9ac:	00e78923          	sb	x14,18(x15)
- 9b0:	02e6ea63          	bltu	x13,x14,9e4 <physics_reflect_bullet+0x70>
- 9b4:	00008067          	ret
- 9b8:	01800513          	li	x10,24
- 9bc:	02a5c5b3          	div	x11,x11,x10
- 9c0:	02a6c6b3          	div	x13,x13,x10
- 9c4:	02a64633          	div	x12,x12,x10
- 9c8:	02a74733          	div	x14,x14,x10
- 9cc:	02d58c63          	beq	x11,x13,a04 <physics_reflect_bullet+0x90>
- 9d0:	0087a683          	lw	x13,8(x15)
- 9d4:	40d006b3          	neg	x13,x13
- 9d8:	00d7a423          	sw	x13,8(x15)
- 9dc:	fae618e3          	bne	x12,x14,98c <physics_reflect_bullet+0x18>
- 9e0:	fb9ff06f          	j	998 <physics_reflect_bullet+0x24>
- 9e4:	00078823          	sb	x0,16(x15)
- 9e8:	00000513          	li	x10,0
- 9ec:	00008067          	ret
- 9f0:	0087a703          	lw	x14,8(x15)
- 9f4:	40e00733          	neg	x14,x14
- 9f8:	00e7a423          	sw	x14,8(x15)
- 9fc:	f8a868e3          	bltu	x16,x10,98c <physics_reflect_bullet+0x18>
- a00:	f99ff06f          	j	998 <physics_reflect_bullet+0x24>
- a04:	f8e614e3          	bne	x12,x14,98c <physics_reflect_bullet+0x18>
- a08:	fe1ff06f          	j	9e8 <physics_reflect_bullet+0x74>
+00000be4 <physics_reflect_bullet>:
+ be4:	fe768893          	addi	x17,x13,-25
+ be8:	1ae00813          	li	x16,430
+ bec:	00050793          	mv	x15,x10
+ bf0:	fe770513          	addi	x10,x14,-25
+ bf4:	03186a63          	bltu	x16,x17,c28 <physics_reflect_bullet+0x44>
+ bf8:	06a87463          	bgeu	x16,x10,c60 <physics_reflect_bullet+0x7c>
+ bfc:	00c7a703          	lw	x14,12(x15)
+ c00:	40e00733          	neg	x14,x14
+ c04:	00e7a623          	sw	x14,12(x15)
+ c08:	0127c703          	lbu	x14,18(x15)
+ c0c:	00100513          	li	x10,1
+ c10:	00500693          	li	x13,5
+ c14:	00a70733          	add	x14,x14,x10
+ c18:	0ff77713          	zext.b	x14,x14
+ c1c:	00e78923          	sb	x14,18(x15)
+ c20:	02e6ea63          	bltu	x13,x14,c54 <physics_reflect_bullet+0x70>
+ c24:	00008067          	ret
+ c28:	0087a703          	lw	x14,8(x15)
+ c2c:	40e00733          	neg	x14,x14
+ c30:	00e7a423          	sw	x14,8(x15)
+ c34:	fca864e3          	bltu	x16,x10,bfc <physics_reflect_bullet+0x18>
+ c38:	0127c703          	lbu	x14,18(x15)
+ c3c:	00100513          	li	x10,1
+ c40:	00500693          	li	x13,5
+ c44:	00a70733          	add	x14,x14,x10
+ c48:	0ff77713          	zext.b	x14,x14
+ c4c:	00e78923          	sb	x14,18(x15)
+ c50:	fce6fae3          	bgeu	x13,x14,c24 <physics_reflect_bullet+0x40>
+ c54:	00078823          	sb	x0,16(x15)
+ c58:	00000513          	li	x10,0
+ c5c:	00008067          	ret
+ c60:	2aaab537          	lui	x10,0x2aaab
+ c64:	aab50513          	addi	x10,x10,-1365 # 2aaaaaab <_stack_top+0x2aaa9acb>
+ c68:	02a59833          	mulh	x16,x11,x10
+ c6c:	41f6de13          	srai	x28,x13,0x1f
+ c70:	41f65313          	srai	x6,x12,0x1f
+ c74:	41f75893          	srai	x17,x14,0x1f
+ c78:	41f5d593          	srai	x11,x11,0x1f
+ c7c:	02a696b3          	mulh	x13,x13,x10
+ c80:	40285813          	srai	x16,x16,0x2
+ c84:	40b80833          	sub	x16,x16,x11
+ c88:	02a61633          	mulh	x12,x12,x10
+ c8c:	4026d693          	srai	x13,x13,0x2
+ c90:	41c686b3          	sub	x13,x13,x28
+ c94:	02a71733          	mulh	x14,x14,x10
+ c98:	40265613          	srai	x12,x12,0x2
+ c9c:	40660633          	sub	x12,x12,x6
+ ca0:	40275713          	srai	x14,x14,0x2
+ ca4:	41170733          	sub	x14,x14,x17
+ ca8:	00d80c63          	beq	x16,x13,cc0 <physics_reflect_bullet+0xdc>
+ cac:	0087a683          	lw	x13,8(x15)
+ cb0:	40d006b3          	neg	x13,x13
+ cb4:	00d7a423          	sw	x13,8(x15)
+ cb8:	f4e612e3          	bne	x12,x14,bfc <physics_reflect_bullet+0x18>
+ cbc:	f4dff06f          	j	c08 <physics_reflect_bullet+0x24>
+ cc0:	f2e61ee3          	bne	x12,x14,bfc <physics_reflect_bullet+0x18>
+ cc4:	f95ff06f          	j	c58 <physics_reflect_bullet+0x74>

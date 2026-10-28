@@ -290,10 +290,10 @@ static void test_suite_reflection_physics(void) {
     TEST_ASSERT(b.vy_fp == -TO_FP(3), "Vertical velocity inverted on horizontal wall hit");
     TEST_ASSERT(b.bounces == 2,       "Bounce count incremented to 2");
 
-    // Exceeding MAX_BOUNCES (4 bounces allowed)
-    b.bounces = MAX_BOUNCES; // 4
+    // Exceeding MAX_BOUNCES (5 bounces allowed)
+    b.bounces = MAX_BOUNCES; // 5
     ref = physics_reflect_bullet(&b, 20, 100, 18, 100);
-    TEST_ASSERT(b.bounces == 5,   "Bounce count reaches 5");
+    TEST_ASSERT(b.bounces == 6,   "Bounce count reaches 6");
     TEST_ASSERT(b.active == 0,    "Bullet deactivates after exceeding MAX_BOUNCES");
 }
 
@@ -355,15 +355,27 @@ static void test_suite_collision_and_damage(void) {
     TEST_ASSERT(g_p1.hp == 14,    "P1 took 6 damage from big special bullet (20 -> 14)");
     TEST_ASSERT(g_bullets[1].active == 0, "Big bullet deactivated upon hitting tank");
 
-    // 2b. Friendly fire: a bullet fired by P1 overlapping P1's own box does nothing
+    // 2b. Friendly fire: a fresh bullet fired by P1 overlapping P1's own box does nothing
     g_bullets[3].active = 1;
     g_bullets[3].is_big = 0;
     g_bullets[3].owner  = 1;
+    g_bullets[3].bounces = 0;
     REG_COLLISION_TANK = COLL_TANK_P1_HIT | (1U << 3);
     game_process_collisions();
-    TEST_ASSERT(g_p1.hp == 14,    "Shooter is not damaged by its own bullet");
-    TEST_ASSERT(g_bullets[3].active == 1, "Own bullet keeps flying through the shooter");
+    TEST_ASSERT(g_p1.hp == 14,    "Shooter is not damaged by its own fresh bullet");
+    TEST_ASSERT(g_bullets[3].active == 1, "Own fresh bullet keeps flying through the shooter");
     g_bullets[3].active = 0;
+
+    // 2c. Reflected bullet self-damage: a bullet fired by P1 that bounced (bounces > 0)
+    // CAN damage P1 and disappears upon collision!
+    g_bullets[3].active = 1;
+    g_bullets[3].is_big = 0;
+    g_bullets[3].owner  = 1;
+    g_bullets[3].bounces = 1;
+    REG_COLLISION_TANK = COLL_TANK_P1_HIT | (1U << 3);
+    game_process_collisions();
+    TEST_ASSERT(g_p1.hp == 12,    "Shooter takes 2 damage from own reflected bullet (14 -> 12)");
+    TEST_ASSERT(g_bullets[3].active == 0, "Own reflected bullet deactivates upon hitting shooter");
 
     // 3. Damage saturation at zero
     g_p1.hp = 3;

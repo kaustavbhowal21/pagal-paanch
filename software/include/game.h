@@ -15,7 +15,7 @@
 #define TANK_SIZE           20
 #define BULLET_NORM_SPEED   6
 #define BULLET_BIG_SPEED    4
-#define MAX_BOUNCES         4
+#define MAX_BOUNCES         5
 #define MAX_BULLETS         8
 
 // Busy-wait iterations per game frame. Tuned so one full game-loop pass takes

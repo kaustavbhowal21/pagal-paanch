@@ -21,7 +21,7 @@
 #define TANK_SIZE           20
 #define BULLET_NORM_SPEED   6   // pixels per frame
 #define BULLET_BIG_SPEED    4   // pixels per frame
-#define MAX_BOUNCES         4
+#define MAX_BOUNCES         5
 #define MAX_BULLETS         8
 
 #define P1_BULLET_START     0

@@ -198,11 +198,35 @@ void game_process_collisions(void) {
 
             uint8_t dmg = g_bullets[i].is_big ? 6 : 2;
 
-            if (p1_was_hit && g_bullets[i].owner != 1) {
+            // Bullet can hit P1 if: fired by P2, OR fired by P1 and reflected (bounces > 0)
+            int can_hit_p1 = p1_was_hit && (g_bullets[i].owner != 1 || g_bullets[i].bounces > 0);
+            // Bullet can hit P2 if: fired by P1, OR fired by P2 and reflected (bounces > 0)
+            int can_hit_p2 = p2_was_hit && (g_bullets[i].owner != 2 || g_bullets[i].bounces > 0);
+
+            if (can_hit_p1 && can_hit_p2) {
+                // Both tanks flagged: disambiguate using AABB overlap
+                int bx = FROM_FP(g_bullets[i].x_fp);
+                int by = FROM_FP(g_bullets[i].y_fp);
+                int bsize = g_bullets[i].is_big ? 12 : 6;
+                int p1x = FROM_FP(g_p1.x_fp), p1y = FROM_FP(g_p1.y_fp);
+                int p2x = FROM_FP(g_p2.x_fp), p2y = FROM_FP(g_p2.y_fp);
+
+                int ovl1 = (bx < p1x + TANK_SIZE) && (p1x < bx + bsize) &&
+                           (by < p1y + TANK_SIZE) && (p1y < by + bsize);
+                int ovl2 = (bx < p2x + TANK_SIZE) && (p2x < bx + bsize) &&
+                           (by < p2y + TANK_SIZE) && (p2y < by + bsize);
+
+                if (ovl1 && !ovl2) can_hit_p2 = 0;
+                else if (ovl2 && !ovl1) can_hit_p1 = 0;
+                else if (g_bullets[i].owner == 1) can_hit_p1 = 0;
+                else can_hit_p2 = 0;
+            }
+
+            if (can_hit_p1) {
                 if (g_p1.hp > dmg) g_p1.hp -= dmg;
                 else g_p1.hp = 0;
                 g_bullets[i].active = 0;
-            } else if (p2_was_hit && g_bullets[i].owner != 2) {
+            } else if (can_hit_p2) {
                 if (g_p2.hp > dmg) g_p2.hp -= dmg;
                 else g_p2.hp = 0;
                 g_bullets[i].active = 0;
