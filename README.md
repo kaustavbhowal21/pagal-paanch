@@ -219,26 +219,26 @@ D:\2025.2\Vivado\bin\xsim.bat tb_game_top_sim -R
 
 ### Board Controls:
 * **Red Pushbutton (`CPU_RESETN`, Pin C12):** Active-low system reset.
-* **Player 1:**
-  * `BTNU` (`M18`): Move Forward
-  * `BTND` (`P18`): Move Backward
-  * `BTNL` (`P17`): Rotate Left (CCW)
-  * `BTNR` (`M17`): Rotate Right (CW)
-  * `BTNC` (`N17`): Primary Fire (0.5s cooldown)
-  * `SW0`  (`J15`): Special Attack (20s cooldown)
-* **Player 2:**
-  * `SW1` (`L16`): Move Forward
-  * `SW2` (`M13`): Move Backward
-  * `SW3` (`R15`): Rotate Left (CCW)
-  * `SW4` (`R17`): Rotate Right (CW)
-  * `SW5` (`T18`): Primary Fire (0.5s cooldown)
-  * `SW6` (`U18`): Special Attack (20s cooldown)
+* **Player 1 (breadboard 1 -> Pmod `JA`):** breadboard 3.3V rail to `JA` pin 6; each push button connects its pin to 3.3V (inputs use internal pull-downs).
+  * Button 1 (`JA1`, `C17`): Move Forward
+  * Button 2 (`JA2`, `D18`): Move Backward
+  * Button 3 (`JA3`, `E18`): Rotate Left (CCW)
+  * Button 4 (`JA4`, `G17`): Rotate Right (CW)
+  * Button 5 (`JA7`, `D17`): Primary Fire (0.5s cooldown)
+  * Button 6 (`JA8`, `E17`): Special Attack (20s cooldown)
+* **Player 2 (breadboard 2 -> Pmod `JB`):** same layout, 3.3V rail to `JB` pin 6.
+  * Button 1 (`JB1`, `D14`): Move Forward
+  * Button 2 (`JB2`, `F16`): Move Backward
+  * Button 3 (`JB3`, `G16`): Rotate Left (CCW)
+  * Button 4 (`JB4`, `H14`): Rotate Right (CW)
+  * Button 5 (`JB7`, `E16`): Primary Fire (0.5s cooldown)
+  * Button 6 (`JB8`, `F13`): Special Attack (20s cooldown)
 * **Status LEDs (`LD0..LD15`):**
   * `LD[0]`: Bullet-Wall collision flag
   * `LD[1]`: Bullet-Bullet collision flag
   * `LD[2]`: Bullet-Tank collision flag
   * `LD[3]`: CPU exception, latched until reset (off when running cleanly)
-  * `LD[7:4]`: Player 2 debounced FWD / BWD / LEFT / RIGHT (SW1..SW4)
+  * `LD[7:4]`: Player 2 debounced FWD / BWD / LEFT / RIGHT (JB1..JB4)
   * `LD[13:8]`: Player 1 debounced FWD / BWD / LEFT / RIGHT / SHOOT / SPECIAL
   * `LD[14]`: Game-loop heartbeat (blinks ~2 Hz while the C game loop runs)
   * `LD[15]`: Clock heartbeat (blinks ~1.5 Hz whenever the FPGA is configured and out of reset)
