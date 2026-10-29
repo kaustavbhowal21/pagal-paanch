@@ -442,6 +442,150 @@ static void test_suite_display_sync(void) {
 }
 
 //=============================================================================
+// Suite 10: Brick destruction by bullets, maze reset, tank-vs-tank blocking
+//=============================================================================
+static void test_suite_bricks_reset_and_tank_blocking(void) {
+    // --- Bricks always break, even when the hardware wall flag is already set ---
+    reset_mock_mmio();
+    game_init();
+    MAZE_TILE(6, 9) = TILE_BRICK_DESTRUCTIBLE;       // pixels x 216..239, y 144..167
+    g_bullets[0].active  = 1;
+    g_bullets[0].is_big  = 0;
+    g_bullets[0].bounces = 0;
+    g_bullets[0].owner   = 1;
+    g_bullets[0].x_fp  = TO_FP(222);                 // centre (225, 153) is inside the brick
+    g_bullets[0].y_fp  = TO_FP(150);
+    g_bullets[0].vx_fp = 0;
+    g_bullets[0].vy_fp = TO_FP(1);
+    REG_COLLISION_WALL = 1U << 0;                    // hardware already flagged it
+    game_update_bullets();
+    TEST_ASSERT(MAZE_TILE(6, 9) == TILE_EMPTY, "Brick breaks even when hardware wall flag was set");
+
+    // Brick approached from the left: hardware flag (centre) fires before the corner
+    MAZE_TILE(6, 9) = TILE_BRICK_DESTRUCTIBLE;
+    g_bullets[0].active = 1;
+    g_bullets[0].bounces = 0;
+    g_bullets[0].x_fp  = TO_FP(190);
+    g_bullets[0].y_fp  = TO_FP(150);
+    g_bullets[0].vx_fp = TO_FP(6);
+    g_bullets[0].vy_fp = 0;
+    REG_COLLISION_WALL = 0;
+    for (int f = 0; f < 10; f++) {
+        // emulate the hardware: it flags the bullet when its centre is on a non-floor tile
+        int cx = FROM_FP(g_bullets[0].x_fp) + 3, cy = FROM_FP(g_bullets[0].y_fp) + 3;
+        if (MAZE_TILE(cy / 24, cx / 24) != TILE_EMPTY) REG_COLLISION_WALL = 1U << 0;
+        game_update_bullets();
+    }
+    TEST_ASSERT(MAZE_TILE(6, 9) == TILE_EMPTY, "Brick breaks when approached from the left");
+
+    // Brick approached from the right (corner leads, hardware flag clear)
+    MAZE_TILE(6, 9) = TILE_BRICK_DESTRUCTIBLE;
+    g_bullets[0].active = 1;
+    g_bullets[0].bounces = 0;
+    g_bullets[0].x_fp  = TO_FP(270);
+    g_bullets[0].y_fp  = TO_FP(150);
+    g_bullets[0].vx_fp = -TO_FP(6);
+    g_bullets[0].vy_fp = 0;
+    REG_COLLISION_WALL = 0;
+    for (int f = 0; f < 10; f++) game_update_bullets();
+    TEST_ASSERT(MAZE_TILE(6, 9) == TILE_EMPTY, "Brick breaks when approached from the right");
+
+    // Every brick in a long run breaks, not just the first few
+    reset_mock_mmio();
+    game_init();
+    int broken = 0;
+    for (int c = 8; c <= 11; c++) {
+        MAZE_TILE(10, c) = TILE_BRICK_DESTRUCTIBLE;
+        g_bullets[0].active  = 1;
+        g_bullets[0].bounces = 0;
+        g_bullets[0].is_big  = 0;
+        g_bullets[0].x_fp  = TO_FP(c * 24 + 10);
+        g_bullets[0].y_fp  = TO_FP(10 * 24 - 10);
+        g_bullets[0].vx_fp = 0;
+        g_bullets[0].vy_fp = TO_FP(4);
+        REG_COLLISION_WALL = 1U << 0;               // flag set every time
+        for (int f = 0; f < 6; f++) game_update_bullets();
+        if (MAZE_TILE(10, c) == TILE_EMPTY) broken++;
+    }
+    TEST_ASSERT(broken == 4, "All four bricks break (never stops breaking after the first ones)");
+
+    // --- Maze is restored on game_init (reset) ---
+    reset_mock_mmio();
+    game_init();
+    TEST_ASSERT(MAZE_TILE(10, 8) == TILE_BRICK_DESTRUCTIBLE, "game_init places bricks at row 10, col 8");
+    TEST_ASSERT(MAZE_TILE(10, 11) == TILE_BRICK_DESTRUCTIBLE, "game_init places bricks at row 10, col 11");
+    TEST_ASSERT(MAZE_TILE(10, 7) == TILE_EMPTY && MAZE_TILE(10, 12) == TILE_EMPTY, "Floor around bricks is empty");
+    TEST_ASSERT(MAZE_TILE(0, 0) == TILE_STEEL_SOLID && MAZE_TILE(19, 5) == TILE_STEEL_SOLID, "Border is steel");
+    TEST_ASSERT(MAZE_TILE(4, 4) == TILE_STEEL_SOLID && MAZE_TILE(8, 12) == TILE_STEEL_SOLID, "Pillars are steel");
+    TEST_ASSERT(MAZE_TILE(5, 5) == TILE_EMPTY, "Open floor is empty");
+    MAZE_TILE(10, 8) = TILE_EMPTY;
+    MAZE_TILE(10, 9) = TILE_EMPTY;
+    MAZE_TILE(10, 10) = TILE_EMPTY;
+    MAZE_TILE(10, 11) = TILE_EMPTY;
+    MAZE_TILE(5, 5) = TILE_STEEL_SOLID;
+    game_init();                                     // "reset game"
+    TEST_ASSERT(MAZE_TILE(10, 8) == TILE_BRICK_DESTRUCTIBLE && MAZE_TILE(10, 9) == TILE_BRICK_DESTRUCTIBLE &&
+                MAZE_TILE(10, 10) == TILE_BRICK_DESTRUCTIBLE && MAZE_TILE(10, 11) == TILE_BRICK_DESTRUCTIBLE,
+                "Broken bricks are back after reset");
+    TEST_ASSERT(MAZE_TILE(5, 5) == TILE_EMPTY, "Stray tile removed after reset");
+
+    // --- Tank vs tank blocking ---
+    reset_mock_mmio();
+    game_init();
+    g_p1.x_fp = TO_FP(100); g_p1.y_fp = TO_FP(150); g_p1.angle = 0;      // facing East
+    g_p2.x_fp = TO_FP(124); g_p2.y_fp = TO_FP(150);                      // 24 px ahead
+    REG_P1_KEYS = BTN_FWD;
+    for (int f = 0; f < 30; f++) game_update_tanks();
+    TEST_ASSERT(FROM_FP(g_p1.x_fp) + TANK_SIZE <= FROM_FP(g_p2.x_fp), "P1 is blocked by P2 straight ahead");
+    TEST_ASSERT(!physics_tanks_overlap(FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp),
+                                       FROM_FP(g_p2.x_fp), FROM_FP(g_p2.y_fp)), "Tanks never overlap (P1 driving)");
+    TEST_ASSERT(FROM_FP(g_p1.x_fp) >= 100 + 2, "P1 still moved up to the other tank");
+    REG_P1_KEYS = 0;
+
+    // P2 driving into P1
+    g_p1.x_fp = TO_FP(200); g_p1.y_fp = TO_FP(150);
+    g_p2.x_fp = TO_FP(230); g_p2.y_fp = TO_FP(150); g_p2.angle = 8;      // facing West
+    REG_P2_KEYS = BTN_FWD;
+    for (int f = 0; f < 30; f++) game_update_tanks();
+    TEST_ASSERT(FROM_FP(g_p2.x_fp) >= FROM_FP(g_p1.x_fp) + TANK_SIZE, "P2 is blocked by P1 straight ahead");
+    TEST_ASSERT(!physics_tanks_overlap(FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp),
+                                       FROM_FP(g_p2.x_fp), FROM_FP(g_p2.y_fp)), "Tanks never overlap (P2 driving)");
+
+    // Reversing into the other tank is blocked too
+    REG_P2_KEYS = 0;
+    g_p1.x_fp = TO_FP(300); g_p1.y_fp = TO_FP(150); g_p1.angle = 0;
+    g_p2.x_fp = TO_FP(270); g_p2.y_fp = TO_FP(150);
+    REG_P1_KEYS = BTN_BWD;                                               // backing West into P2
+    for (int f = 0; f < 30; f++) game_update_tanks();
+    TEST_ASSERT(FROM_FP(g_p1.x_fp) >= FROM_FP(g_p2.x_fp) + TANK_SIZE, "Reversing into the other tank is blocked");
+
+    // Diagonal approach slides, but never overlaps
+    REG_P1_KEYS = 0;
+    g_p1.x_fp = TO_FP(150); g_p1.y_fp = TO_FP(150); g_p1.angle = 2;      // South-East
+    g_p2.x_fp = TO_FP(172); g_p2.y_fp = TO_FP(172);
+    REG_P1_KEYS = BTN_FWD;
+    int ok = 1;
+    for (int f = 0; f < 60; f++) {
+        game_update_tanks();
+        if (physics_tanks_overlap(FROM_FP(g_p1.x_fp), FROM_FP(g_p1.y_fp),
+                                  FROM_FP(g_p2.x_fp), FROM_FP(g_p2.y_fp))) ok = 0;
+    }
+    TEST_ASSERT(ok, "No overlap at any frame during a diagonal approach");
+
+    // Tanks that already overlap can always drive apart
+    g_p1.x_fp = TO_FP(100); g_p1.y_fp = TO_FP(150); g_p1.angle = 8;      // facing West
+    g_p2.x_fp = TO_FP(105); g_p2.y_fp = TO_FP(150);
+    REG_P1_KEYS = BTN_FWD;
+    game_update_tanks();
+    TEST_ASSERT(FROM_FP(g_p1.x_fp) < 100, "Overlapping tanks are not stuck: P1 can move away");
+    REG_P1_KEYS = 0;
+    REG_P2_KEYS = 0;
+
+    TEST_ASSERT(physics_tanks_overlap(0, 0, 19, 19) == 1, "physics_tanks_overlap: corner overlap");
+    TEST_ASSERT(physics_tanks_overlap(0, 0, 20, 0)  == 0, "physics_tanks_overlap: touching edges do not overlap");
+}
+
+//=============================================================================
 // Main Test Runner Entrypoint
 //=============================================================================
 int main(void) {
@@ -458,6 +602,7 @@ int main(void) {
     RUN_SUITE(test_suite_maze_destruction,     "7. Dynamic Maze Destruction in Mirrored BRAM");
     RUN_SUITE(test_suite_collision_and_damage, "8. Collision Engine Handshake & Combat Damage");
     RUN_SUITE(test_suite_display_sync,         "9. MMIO Display & HUD Synchronization");
+    RUN_SUITE(test_suite_bricks_reset_and_tank_blocking, "10. Bricks, Reset & Tank-vs-Tank Blocking");
 
     printf("\n===================================================================\n");
     printf("  TEST EXECUTION SUMMARY: %d RUN | %d PASSED | %d FAILED\n",

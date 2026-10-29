@@ -35,7 +35,8 @@ module tb_game_top;
         .IMEM_HEX     ("imem.hex"),
         .DMEM_HEX     ("dmem.hex"),
         .CLK_PER_MS   (50),       // Accelerated prescaler for simulation (1 us per tick)
-        .DEBOUNCE_MAX (20'd5)     // Fast debounce for simulation
+        .DEBOUNCE_MAX (20'd5),    // Fast debounce for simulation
+        .MIN_HOLD     (21'd0)
     ) dut (
         .clk        (clk),
         .reset      (reset),

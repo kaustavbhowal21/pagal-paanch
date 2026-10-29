@@ -33,6 +33,10 @@ void game_init(void) {
     g_p2.hp    = 20;
     g_p2.score = 0;
 
+    // Bring the maze back to its power-up state (bricks destroyed in a previous
+    // game would otherwise stay gone after a reset).
+    physics_reset_maze();
+
     for (int i = 0; i < MAX_BULLETS; i++) {
         g_bullets[i].active  = 0;
         g_bullets[i].is_big  = 0;
@@ -52,6 +56,20 @@ void game_init(void) {
     clear_collision_wall(0xFF);
     clear_collision_tank(0x3FF);
     clear_collision_bullet(0xFF);
+}
+
+//=============================================================================
+// Tank vs Tank blocking
+// A move of `self` to (nx, ny) is blocked when it would overlap `other`. If the
+// tanks already overlap (e.g. after a spawn) the move is allowed so they can
+// always drive apart instead of being stuck together.
+//=============================================================================
+static int tank_move_blocked(int nx, int ny, const Tank *other, const Tank *self) {
+    int ox = FROM_FP(other->x_fp);
+    int oy = FROM_FP(other->y_fp);
+    if (!physics_tanks_overlap(nx, ny, ox, oy))
+        return 0;
+    return !physics_tanks_overlap(FROM_FP(self->x_fp), FROM_FP(self->y_fp), ox, oy);
 }
 
 //=============================================================================
@@ -80,12 +98,14 @@ void game_update_tanks(void) {
             int32_t new_y = g_p1.y_fp + dy;
 
             // Each axis is tested separately so a tank slides along a wall
-            // instead of sticking to it; walls (maze tiles) now block tanks.
+            // instead of sticking to it. Maze walls and the other tank block it.
             if (FROM_FP(new_x) >= ARENA_MIN_X && FROM_FP(new_x) <= (ARENA_MAX_X - TANK_SIZE) &&
-                !physics_tank_hits_wall(FROM_FP(new_x), FROM_FP(g_p1.y_fp)))
+                !physics_tank_hits_wall(FROM_FP(new_x), FROM_FP(g_p1.y_fp)) &&
+                !tank_move_blocked(FROM_FP(new_x), FROM_FP(g_p1.y_fp), &g_p2, &g_p1))
                 g_p1.x_fp = new_x;
             if (FROM_FP(new_y) >= ARENA_MIN_Y && FROM_FP(new_y) <= (ARENA_MAX_Y - TANK_SIZE) &&
-                !physics_tank_hits_wall(FROM_FP(g_p1.x_fp), FROM_FP(new_y)))
+                !physics_tank_hits_wall(FROM_FP(g_p1.x_fp), FROM_FP(new_y)) &&
+                !tank_move_blocked(FROM_FP(g_p1.x_fp), FROM_FP(new_y), &g_p2, &g_p1))
                 g_p1.y_fp = new_y;
         }
 
@@ -119,12 +139,14 @@ void game_update_tanks(void) {
             int32_t new_y2 = g_p2.y_fp + dy2;
 
             // Each axis is tested separately so a tank slides along a wall
-            // instead of sticking to it; walls (maze tiles) now block tanks.
+            // instead of sticking to it. Maze walls and the other tank block it.
             if (FROM_FP(new_x2) >= ARENA_MIN_X && FROM_FP(new_x2) <= (ARENA_MAX_X - TANK_SIZE) &&
-                !physics_tank_hits_wall(FROM_FP(new_x2), FROM_FP(g_p2.y_fp)))
+                !physics_tank_hits_wall(FROM_FP(new_x2), FROM_FP(g_p2.y_fp)) &&
+                !tank_move_blocked(FROM_FP(new_x2), FROM_FP(g_p2.y_fp), &g_p1, &g_p2))
                 g_p2.x_fp = new_x2;
             if (FROM_FP(new_y2) >= ARENA_MIN_Y && FROM_FP(new_y2) <= (ARENA_MAX_Y - TANK_SIZE) &&
-                !physics_tank_hits_wall(FROM_FP(g_p2.x_fp), FROM_FP(new_y2)))
+                !physics_tank_hits_wall(FROM_FP(g_p2.x_fp), FROM_FP(new_y2)) &&
+                !tank_move_blocked(FROM_FP(g_p2.x_fp), FROM_FP(new_y2), &g_p1, &g_p2))
                 g_p2.y_fp = new_y2;
         }
 
@@ -159,9 +181,22 @@ void game_update_bullets(void) {
         int next_x = FROM_FP(next_x_fp);
         int next_y = FROM_FP(next_y_fp);
 
-        // Check if wall hit or hardware flagged collision
-        int hit_detected = (hw_wall_hits & (1U << i)) || 
-                           physics_check_and_destroy_tile(next_x, next_y, g_bullets[i].is_big);
+        // Bricks MUST always break. The hardware wall flag is raised from the bullet
+        // CENTRE while the software test below uses the bullet's top-left corner, so
+        // the hardware usually reports the brick first. The old code used
+        // `hw_flag || destroy_tile(...)`, which skipped the destroy call whenever the
+        // hardware flag was set (the brick then only reflected the bullet and never
+        // broke). Every probe is therefore evaluated unconditionally:
+        //   - tile under the bullet centre now (what the hardware flagged),
+        //   - tile under the top-left corner next frame,
+        //   - tile under the centre next frame.
+        int half = g_bullets[i].is_big ? 6 : 3;
+        int hw_flag = (hw_wall_hits & (1U << i)) != 0;
+        int hit_detected = hw_flag;
+        if (hw_flag)
+            physics_check_and_destroy_tile(prev_x + half, prev_y + half, g_bullets[i].is_big);
+        hit_detected |= physics_check_and_destroy_tile(next_x, next_y, g_bullets[i].is_big);
+        hit_detected |= physics_check_and_destroy_tile(next_x + half, next_y + half, g_bullets[i].is_big);
 
         if (hit_detected) {
             physics_reflect_bullet(&g_bullets[i], prev_x, prev_y, next_x, next_y);

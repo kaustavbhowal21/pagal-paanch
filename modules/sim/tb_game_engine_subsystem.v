@@ -97,7 +97,7 @@ module tb_game_engine_subsystem;
         .wr_en_maze (wr_en_maze)
     );
 
-    input_controller #(.DEBOUNCE_MAX(20'd5)) u_input (
+    input_controller #(.DEBOUNCE_MAX(20'd5), .MIN_HOLD(21'd0)) u_input (
         .clk           (clk),
         .reset_n       (reset_n),
         .p1_btn_raw    (p1_btn_raw),

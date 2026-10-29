@@ -11,6 +11,12 @@ extern const int16_t g_sin_fp[16];
 // Check maze tile collision and destroy brick if destructible (using RV32M DIV)
 int physics_check_and_destroy_tile(int px, int py, int is_big);
 
+// Restore the maze to its power-up layout (steel border/pillars + bricks)
+void physics_reset_maze(void);
+
+// 1 if two TANK_SIZE x TANK_SIZE tanks with top-left corners (x1,y1) / (x2,y2) overlap
+int physics_tanks_overlap(int x1, int y1, int x2, int y2);
+
 // Tank vs maze: 1 if a tank at top-left (x, y) would overlap a wall tile
 int physics_tank_hits_wall(int x, int y);
 

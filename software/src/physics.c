@@ -65,6 +65,35 @@ int physics_tank_hits_wall(int x, int y) {
 }
 
 //=============================================================================
+// Tank vs Tank Collision (axis-aligned boxes, touching edges do not overlap)
+//=============================================================================
+int physics_tanks_overlap(int x1, int y1, int x2, int y2) {
+    return (x1 < x2 + TANK_SIZE) && (x2 < x1 + TANK_SIZE) &&
+           (y1 < y2 + TANK_SIZE) && (y2 < y1 + TANK_SIZE);
+}
+
+//=============================================================================
+// Maze Reset
+// Rewrites every tile with the power-up layout, i.e. the same pattern that
+// modules/game_engine/maze_tile_ram.v is initialised with. The tile RAM keeps its
+// contents across a reset, so without this broken bricks never came back.
+//=============================================================================
+void physics_reset_maze(void) {
+    for (int r = 0; r < 20; r++) {
+        for (int c = 0; c < 20; c++) {
+            uint32_t tile = TILE_EMPTY;
+            if (r == 0 || r == 19 || c == 0 || c == 19)
+                tile = TILE_STEEL_SOLID;                 // outer border
+            else if ((r % 4 == 0) && (c % 4 == 0))
+                tile = TILE_STEEL_SOLID;                 // interior pillars
+            else if (r == 10 && c >= 8 && c <= 11)
+                tile = TILE_BRICK_DESTRUCTIBLE;          // breakable bricks
+            MAZE_TILE(r, c) = tile;
+        }
+    }
+}
+
+//=============================================================================
 // Spawn Projectile from Tank Turret Tip
 // Uses RV32M Hardware MUL instructions
 //=============================================================================

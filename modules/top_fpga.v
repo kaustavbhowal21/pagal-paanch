@@ -25,7 +25,8 @@ module top_fpga #(
     parameter IMEMSIZE = 4096,
     parameter DMEMSIZE = 4096,
     parameter CLK_PER_MS = 50_000,
-    parameter DEBOUNCE_MAX = 20'd500_000
+    parameter DEBOUNCE_MAX = 20'd150_000,
+    parameter MIN_HOLD     = 21'd1_000_000
 )(
     input  wire        clk,            // 100 MHz board oscillator (pin E3)
     input  wire        reset,          // active-low reset button (pin C12)
@@ -224,7 +225,8 @@ module top_fpga #(
     wire [5:0] p2_btn_debounced;
 
     input_controller #(
-        .DEBOUNCE_MAX(DEBOUNCE_MAX)
+        .DEBOUNCE_MAX(DEBOUNCE_MAX),
+        .MIN_HOLD    (MIN_HOLD)
     ) u_input (
         .clk           (clk_sys),
         .reset_n       (rst_n),

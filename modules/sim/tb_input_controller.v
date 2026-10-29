@@ -24,9 +24,12 @@ module tb_input_controller;
 
     // Use a small DEBOUNCE_MAX for fast simulation (5 clocks instead of 500,000)
     localparam DEBOUNCE_SIM = 20'd5;
+    // Minimum press hold time (clocks). Short so the other tests stay fast.
+    localparam HOLD_SIM     = 21'd40;
 
     input_controller #(
-        .DEBOUNCE_MAX(DEBOUNCE_SIM)
+        .DEBOUNCE_MAX(DEBOUNCE_SIM),
+        .MIN_HOLD    (HOLD_SIM)
     ) dut (
         .clk           (clk),
         .reset_n       (reset_n),
@@ -92,14 +95,36 @@ module tb_input_controller;
             $display("  [PASS] Buttons cleanly stabilized to 6'b010001.");
         end
 
-        // Release buttons
+        // Release buttons (wait out the minimum hold time first)
         p1_btn_raw = 6'b000000;
-        repeat(10) @(posedge clk);
+        repeat(HOLD_SIM + 10) @(posedge clk);
         if (p1_btn_stable !== 6'b000000) begin
             $display("  [FAIL] Release debounce failed! Expected 0, got %b", p1_btn_stable);
             errors = errors + 1;
         end else begin
             $display("  [PASS] Button release cleanly debounced back to 0.");
+        end
+
+        // =====================================================================
+        // Test 2b: Short tap is stretched to MIN_HOLD (so the CPU cannot miss it)
+        // =====================================================================
+        $display("  [TEST 2b] Testing short-tap stretching...");
+        p1_btn_raw[3] = 1'b1;
+        repeat(12) @(posedge clk);      // tap just longer than the debounce time
+        p1_btn_raw[3] = 1'b0;
+        repeat(12) @(posedge clk);      // released, but hold time not over yet
+        if (p1_btn_stable[3] !== 1'b1) begin
+            $display("  [FAIL] Short tap was not held on the output!");
+            errors = errors + 1;
+        end else begin
+            $display("  [PASS] Short tap still visible on the output after release.");
+        end
+        repeat(HOLD_SIM + 10) @(posedge clk);
+        if (p1_btn_stable[3] !== 1'b0) begin
+            $display("  [FAIL] Output did not return to 0 after the hold time!");
+            errors = errors + 1;
+        end else begin
+            $display("  [PASS] Output released after the minimum hold time.");
         end
 
         // =====================================================================
@@ -123,7 +148,7 @@ module tb_input_controller;
         // Set both players active
         p1_btn_raw = 6'b000001; // P1 FWD
         p2_btn_raw = 6'b000010; // P2 BWD
-        repeat(10) @(posedge clk);
+        repeat(HOLD_SIM + 10) @(posedge clk);
 
         // Read 0x8000_0000 (P1 Input Register)
         d_addr = 32'h8000_0000;

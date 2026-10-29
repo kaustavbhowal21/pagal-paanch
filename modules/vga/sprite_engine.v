@@ -58,6 +58,55 @@ module sprite_engine (
     wire [9:0] dy_t2 = y - p2_tank_y;
     wire in_box_t2 = (dx_t2 < 10'd20) && (dy_t2 < 10'd20) && active;
 
+    // =========================================================================
+    // Turret barrel shape (shared by both tanks)
+    //
+    // The barrel is a thin line from the tank centre outwards in the direction of
+    // the turret angle. A pixel belongs to it when
+    //   - its distance ALONG the direction is between 2 and 11 pixels, and
+    //   - its distance ACROSS (perpendicular to) the direction is <= ~1.75 half-px.
+    // This gives the same 2-px wide barrel at the 4 cardinal angles and a clean
+    // 2..3-px wide diagonal line at 45 degrees. (The old per-angle quadrant tests
+    // filled a whole triangle at 45 degrees, which looked like a solid square.)
+    //
+    // Coordinates are in half pixels relative to the tank centre
+    // (u = 2*d - 19), trig values are scaled by 256 (same table as software).
+    // =========================================================================
+    function barrel_hit;
+        input [9:0] dx;
+        input [9:0] dy;
+        input [3:0] ang;
+        reg signed [7:0]  ux, uy;
+        reg signed [10:0] c, s;
+        reg signed [19:0] along, across;
+        begin
+            ux = $signed({2'b00, dx[4:0], 1'b0}) - 8'sd19;
+            uy = $signed({2'b00, dy[4:0], 1'b0}) - 8'sd19;
+            case (ang)
+                4'd0:  begin c =  11'sd256; s =  11'sd0;   end
+                4'd1:  begin c =  11'sd237; s =  11'sd98;  end
+                4'd2:  begin c =  11'sd181; s =  11'sd181; end
+                4'd3:  begin c =  11'sd98;  s =  11'sd237; end
+                4'd4:  begin c =  11'sd0;   s =  11'sd256; end
+                4'd5:  begin c = -11'sd98;  s =  11'sd237; end
+                4'd6:  begin c = -11'sd181; s =  11'sd181; end
+                4'd7:  begin c = -11'sd237; s =  11'sd98;  end
+                4'd8:  begin c = -11'sd256; s =  11'sd0;   end
+                4'd9:  begin c = -11'sd237; s = -11'sd98;  end
+                4'd10: begin c = -11'sd181; s = -11'sd181; end
+                4'd11: begin c = -11'sd98;  s = -11'sd237; end
+                4'd12: begin c =  11'sd0;   s = -11'sd256; end
+                4'd13: begin c =  11'sd98;  s = -11'sd237; end
+                4'd14: begin c =  11'sd181; s = -11'sd181; end
+                default: begin c = 11'sd237; s = -11'sd98; end
+            endcase
+            along  = ux * c + uy * s;
+            across = ux * s - uy * c;
+            barrel_hit = (along  >= 20'sd1024) && (along  <= 20'sd5632) &&
+                         (across >= -20'sd448) && (across <= 20'sd448);
+        end
+    endfunction
+
     // Tank 1 shape and color decoder
     reg        hit_t1;
     reg [11:0] rgb_t1;
@@ -81,21 +130,8 @@ module sprite_engine (
                     rgb_t1 = 12'h0B0; // Tank hull green
                 end
             end
-            // Turret gun barrel pointing based on tank_ang1[3:0]
-            case (tank_ang1)
-                4'd0:  if ((dy_t1 >= 10'd9) && (dy_t1 <= 10'd10) && (dx_t1 >= 10'd12)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // East
-                4'd1, 4'd2, 4'd3:
-                       if ((dx_t1 >= 10'd10) && (dy_t1 >= 10'd10) && ((dx_t1 + dy_t1) >= 10'd22)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // South-East
-                4'd4:  if ((dx_t1 >= 10'd9) && (dx_t1 <= 10'd10) && (dy_t1 >= 10'd12)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // South
-                4'd5, 4'd6, 4'd7:
-                       if ((dx_t1 <= 10'd9) && (dy_t1 >= 10'd10) && ((dy_t1 - dx_t1) >= 10'd4)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // South-West
-                4'd8:  if ((dy_t1 >= 10'd9) && (dy_t1 <= 10'd10) && (dx_t1 <= 10'd7)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // West
-                4'd9, 4'd10, 4'd11:
-                       if ((dx_t1 <= 10'd9) && (dy_t1 <= 10'd9) && ((dx_t1 + dy_t1) <= 10'd16)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // North-West
-                4'd12: if ((dx_t1 >= 10'd9) && (dx_t1 <= 10'd10) && (dy_t1 <= 10'd7)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // North
-                default:
-                       if ((dx_t1 >= 10'd10) && (dy_t1 <= 10'd9) && ((dx_t1 - dy_t1) >= 10'd4)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end // North-East
-            endcase
+            // Turret gun barrel (line in the direction of tank_ang1)
+            if (barrel_hit(dx_t1, dy_t1, tank_ang1)) begin hit_t1 = 1'b1; rgb_t1 = 12'h0F4; end
         end
     end
 
@@ -121,21 +157,8 @@ module sprite_engine (
                     rgb_t2 = 12'hB11; // Tank hull red
                 end
             end
-            // Turret gun barrel
-            case (tank_ang2)
-                4'd0:  if ((dy_t2 >= 10'd9) && (dy_t2 <= 10'd10) && (dx_t2 >= 10'd12)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                4'd1, 4'd2, 4'd3:
-                       if ((dx_t2 >= 10'd10) && (dy_t2 >= 10'd10) && ((dx_t2 + dy_t2) >= 10'd22)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                4'd4:  if ((dx_t2 >= 10'd9) && (dx_t2 <= 10'd10) && (dy_t2 >= 10'd12)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                4'd5, 4'd6, 4'd7:
-                       if ((dx_t2 <= 10'd9) && (dy_t2 >= 10'd10) && ((dy_t2 - dx_t2) >= 10'd4)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                4'd8:  if ((dy_t2 >= 10'd9) && (dy_t2 <= 10'd10) && (dx_t2 <= 10'd7)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                4'd9, 4'd10, 4'd11:
-                       if ((dx_t2 <= 10'd9) && (dy_t2 <= 10'd9) && ((dx_t2 + dy_t2) <= 10'd16)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                4'd12: if ((dx_t2 >= 10'd9) && (dx_t2 <= 10'd10) && (dy_t2 <= 10'd7)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-                default:
-                       if ((dx_t2 >= 10'd10) && (dy_t2 <= 10'd9) && ((dx_t2 - dy_t2) >= 10'd4)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
-            endcase
+            // Turret gun barrel (line in the direction of tank_ang2)
+            if (barrel_hit(dx_t2, dy_t2, tank_ang2)) begin hit_t2 = 1'b1; rgb_t2 = 12'hF44; end
         end
     end
 

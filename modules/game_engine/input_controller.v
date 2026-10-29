@@ -9,7 +9,13 @@
 `define INPUT_CONTROLLER_V
 
 module input_controller #(
-    parameter DEBOUNCE_MAX = 20'd500_000 // 10 ms @ 50 MHz (can override for simulation)
+    // Debounce time in clk cycles: 3 ms @ 50 MHz (can override for simulation).
+    // Kept short so a button press reaches the CPU almost immediately.
+    parameter DEBOUNCE_MAX = 20'd150_000,
+    // Minimum time a debounced press is held on the output (20 ms @ 50 MHz, a bit
+    // more than one 16.7 ms game frame). The CPU samples the buttons only once per
+    // frame, so without this a quick tap could fall between two samples and be lost.
+    parameter MIN_HOLD     = 21'd1_000_000
 )(
     input  wire        clk,
     input  wire        reset_n,
@@ -36,6 +42,7 @@ module input_controller #(
             reg sync1, sync2;
             reg stable_q;
             reg [19:0] cnt_q;
+            reg [20:0] hold_q;      // remaining minimum-hold time of a press
 
             wire diff = sync2 ^ stable_q;
 
@@ -45,14 +52,24 @@ module input_controller #(
                     sync2    <= 1'b0;
                     stable_q <= 1'b0;
                     cnt_q    <= 20'd0;
+                    hold_q   <= 21'd0;
                 end else begin
                     sync1 <= raw_inputs[i];
                     sync2 <= sync1;
 
+                    if (hold_q != 21'd0)
+                        hold_q <= hold_q - 1'b1;
+
                     if (diff) begin
                         if (cnt_q == DEBOUNCE_MAX) begin
-                            stable_q <= sync2;
-                            cnt_q    <= 20'd0;
+                            // A release is only accepted once the minimum hold has
+                            // expired (the debounce counter just waits at MAX).
+                            if (sync2 || (hold_q == 21'd0)) begin
+                                stable_q <= sync2;
+                                cnt_q    <= 20'd0;
+                                if (sync2)
+                                    hold_q <= MIN_HOLD;
+                            end
                         end else begin
                             cnt_q <= cnt_q + 1'b1;
                         end
