@@ -1,55 +1,77 @@
-# Prerequisites
-*.d
+# ==============================================================================
+# Xilinx Vivado / EDA Artifacts
+# ==============================================================================
+# In-memory and on-disk simulation directories
+xsim.dir/
+.Xil/
+xsim.covdb/
 
-# Object files
+# Simulation waveform databases and traces
+*.wdb
+*.vcd
+*.fst
+
+# Vivado project runs, caches, and hardware manager data
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.sim/
+
+# Vivado logs, journals, and status files
+*.jou
+*.log
+*.pb
+*.vdi
+*.str
+*.rpt
+*.rpx
+dfx_runtime.txt
+clockInfo.txt
+htr.txt
+
+# Synthesis checkpoints, netlists, and bitstreams
+*.dcp
+*.bit
+*.bin
+
+# ==============================================================================
+# Verilator / C++ Simulation Artifacts
+# ==============================================================================
+obj_dir/
+sim_verilator/battle_tanks_sim
+
+# ==============================================================================
+# Software Build Outputs (RV32IM GCC)
+# ==============================================================================
+software/game.elf
+software/*.bin
+software/*.dis
+software/*.map
+
+# Keep root/module hex images if required for out-of-the-box simulation,
+# or uncomment the lines below if you prefer to ignore all generated hex/vh files:
+# *.hex
+# !imem.hex
+# !dmem.hex
+# firmware_imem.vh
+# firmware_dmem.vh
+
+# ==============================================================================
+# Standard C/C++ Object and Compiled Binaries
+# ==============================================================================
 *.o
-*.ko
 *.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
 *.exe
 *.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+*.d
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
-# debug information files
-*.dwo
+# ==============================================================================
+# Editor and System Files
+# ==============================================================================
+.cph/
+.vscode/
+*.prob
+Thumbs.db
+desktop.ini
+.DS_Store
